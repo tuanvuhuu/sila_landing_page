@@ -46,8 +46,10 @@ async function uploadFile(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
   const res = await fetch("/api/upload", { method: "POST", body: fd });
-  if (!res.ok) throw new Error("upload failed");
   const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Upload thất bại");
+  }
   return data.url as string;
 }
 
@@ -137,8 +139,12 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
   }
 
   async function uploadEventImage(file: File) {
-    const url = await uploadFile(file);
-    setEditingEvent((prev) => prev ? { ...prev, image: url } : prev);
+    try {
+      const url = await uploadFile(file);
+      setEditingEvent((prev) => prev ? { ...prev, image: url } : prev);
+    } catch (err) {
+      alert(`Lỗi upload ảnh: ${err instanceof Error ? err.message : "Không xác định"}`);
+    }
   }
 
   function patch(updater: (draft: SiteContent) => void) {
