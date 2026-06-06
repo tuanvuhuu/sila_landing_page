@@ -17,8 +17,8 @@ export async function POST(req: Request) {
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
   const filename = `esl-uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-  // === Vercel Blob (production) ===
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  // === Vercel Blob (production) — hỗ trợ cả OIDC (BLOB_STORE_ID) lẫn token cũ ===
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
     const { put } = await import("@vercel/blob");
     const blob = await put(filename, file, {
       access: "public",
