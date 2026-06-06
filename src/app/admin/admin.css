@@ -1,0 +1,78 @@
+.admin {
+  font-family: "Nunito", system-ui, sans-serif;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.2rem 4rem;
+  color: #2b2240;
+}
+.admin h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.admin .muted { color: #6b6480; font-size: 0.92rem; }
+.admin-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.6rem; flex-wrap: wrap; gap: 0.6rem; }
+.card { background: #fff; border: 1px solid #e9e6df; border-radius: 14px; padding: 1.4rem; margin-bottom: 1.2rem; }
+.card h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+.afield { margin-bottom: 0.9rem; }
+.afield label { display: block; font-size: 0.85rem; color: #6b6480; margin-bottom: 0.3rem; font-weight: 700; }
+.afield input, .afield textarea {
+  width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #ddd; border-radius: 9px;
+  font-family: inherit; font-size: 0.95rem; background: #fbfaf7;
+}
+.afield textarea { min-height: 64px; resize: vertical; }
+.afield input:focus, .afield textarea:focus { outline: none; border-color: #80B848; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+@media (max-width: 600px) { .row2 { grid-template-columns: 1fr; } }
+.abtn { font-family: inherit; font-weight: 700; font-size: 0.95rem; padding: 0.6rem 1.2rem; border-radius: 999px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+.abtn:hover { background: #f5f3ee; }
+.abtn-primary { background: #80B848; color: #fff; border-color: #80B848; }
+.abtn-primary:hover { background: #5F8F2E; }
+.thumb { width: 90px; height: 64px; object-fit: cover; border-radius: 9px; border: 1px solid #e9e6df; }
+.thumbs { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.lead-row { display: grid; grid-template-columns: 1.1fr 1fr 0.6fr 1fr 1.1fr 1fr; align-items: center; gap: 0.5rem; padding: 0.55rem 0; border-bottom: 1px solid #f0eee8; font-size: 0.92rem; }
+.lead-row.h { font-weight: 800; color: #6b6480; }
+@media (max-width: 600px) { .lead-row { grid-template-columns: 1fr 1fr; } }
+.lead-stats { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem; }
+.lstat { display: flex; flex-direction: column; align-items: center; background: #f8faf1; border: 1px solid #e7ecd8; border-radius: 12px; padding: 0.55rem 1rem; min-width: 76px; }
+.lstat-n { font-family: "Quicksand", sans-serif; font-weight: 700; font-size: 1.4rem; color: #5F8F2E; line-height: 1; }
+.lstat-l { font-size: 0.75rem; color: #6b6480; font-weight: 700; margin-top: 2px; }
+.save-bar { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #e9e6df; padding: 0.9rem 0; display: flex; gap: 0.7rem; align-items: center; }
+.saved-msg { color: #5F8F2E; font-weight: 700; }
+.login-box { max-width: 360px; margin: 4rem auto; }
+.lead-row select { padding: 0.3rem 0.4rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.82rem; background: #fff; width: 100%; }
+.afield select { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #ddd; border-radius: 9px; font-family: inherit; font-size: 0.95rem; background: #fbfaf7; }
+.afield select:focus { outline: none; border-color: #80B848; }
+
+/* Event modal */
+.ev-modal {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.4); display: grid; place-items: center;
+  padding: 1rem;
+}
+.ev-modal-content {
+  background: #fff; border-radius: 18px; padding: 1.8rem;
+  width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px -12px rgba(0,0,0,0.3);
+}
+.ev-modal-content h3 { margin: 0 0 1.2rem; font-size: 1.2rem; }
+
+/* Công tắc bật/tắt sự kiện nhanh */
+.ev-toggle {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  border: none; cursor: pointer; padding: 0.3rem 0.7rem 0.3rem 0.35rem;
+  border-radius: 999px; background: #d9d6cf; transition: background 0.2s ease;
+  font-family: inherit; font-weight: 700; font-size: 0.78rem; color: #6b6480;
+  flex-shrink: 0;
+}
+.ev-toggle.on { background: #80B848; color: #fff; }
+.ev-toggle-knob {
+  width: 18px; height: 18px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s ease;
+}
+.ev-toggle.on .ev-toggle-knob { transform: translateX(2px); }
+.ev-toggle-label { line-height: 1; }
+.ev-toggle-cancelled {
+  display: inline-flex; align-items: center; padding: 0.3rem 0.7rem;
+  border-radius: 999px; background: #f8d7da; color: #dc3545;
+  font-weight: 700; font-size: 0.78rem; flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .ev-toggle-label { display: none; }
+}
