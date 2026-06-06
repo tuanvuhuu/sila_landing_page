@@ -428,6 +428,26 @@ footer .row { margin: 0.3rem 0; }
 .ev-list .ev-img { aspect-ratio: auto; height: 100%; }
 .ev-empty { text-align: center; color: var(--muted); padding: 3rem 1rem; font-size: 1rem; }
 
+/* Trang chi tiết sự kiện /su-kien/[id] */
+.ev-detail-page { padding: 2rem 0 5rem; min-height: 70vh; }
+.ev-detail-wrap { max-width: 780px; margin: 0 auto; }
+.ev-detail-img { position: relative; border-radius: 22px; overflow: hidden; margin-bottom: 2rem; aspect-ratio: 16/9; }
+.ev-detail-img img { width: 100%; height: 100%; object-fit: cover; }
+.ev-detail-title { font-family: "Quicksand"; font-size: 2rem; font-weight: 800; color: var(--ink); margin: 0 0 0.6rem; line-height: 1.25; }
+.ev-detail-meta { font-size: 0.95rem; color: var(--muted); margin: 0 0 1.2rem; }
+.ev-detail-desc { color: var(--ink); font-size: 1rem; line-height: 1.75; margin: 1.4rem 0 2rem; }
+.ev-detail-desc p { margin: 0 0 0.5rem; }
+.ev-detail-cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+/* Thẻ sự kiện có thể click */
+.ev-card-link { display: block; text-decoration: none; color: inherit; border-radius: 18px; }
+.ev-card-link:hover .ev-card { transform: translateY(-4px); box-shadow: var(--shadow); }
+.ev-card-link:hover .ev-title { color: var(--green-deep); }
+@media (max-width: 640px) {
+  .ev-detail-title { font-size: 1.5rem; }
+  .ev-detail-cta { flex-direction: column; }
+  .ev-detail-img { aspect-ratio: 4/3; }
+}
+
 @media (max-width: 768px) {
   .ev-list .ev-card { grid-template-columns: 1fr; }
   .ev-grid { grid-template-columns: 1fr; }

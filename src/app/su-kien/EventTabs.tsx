@@ -21,33 +21,30 @@ function formatDate(iso: string): string {
 
 function EventCard({ event, isPast }: { event: Event; isPast?: boolean }) {
   return (
-    <div className={`ev-card${isPast ? " ev-past" : ""}`}>
-      {event.image && (
-        <div className="ev-img">
-          <img src={event.image} alt={event.title} />
-          {isPast && <span className="ev-badge-past">Đã kết thúc</span>}
-        </div>
-      )}
-      <div className="ev-body">
-        <div className="ev-date">
-          📅 {formatDate(event.date)}
-          {event.endDate && ` — ${formatDate(event.endDate)}`}
-        </div>
-        <h3 className="ev-title">{event.title}</h3>
-        {event.description && <p className="ev-desc">{event.description}</p>}
-        {event.location && <p className="ev-loc">📍 {event.location}</p>}
-        {!isPast && event.ctaLink && (
-          <a
-            href={event.ctaLink}
-            className="btn btn-primary ev-cta"
-            target={event.ctaLink.startsWith("http") ? "_blank" : undefined}
-            rel={event.ctaLink.startsWith("http") ? "noreferrer" : undefined}
-          >
-            {event.ctaText || "Đăng ký tham gia"} →
-          </a>
+    <a href={`/su-kien/${event.id}`} className="ev-card-link">
+      <div className={`ev-card${isPast ? " ev-past" : ""}`}>
+        {event.image && (
+          <div className="ev-img">
+            <img src={event.image} alt={event.title} />
+            {isPast && <span className="ev-badge-past">Đã kết thúc</span>}
+          </div>
         )}
+        <div className="ev-body">
+          <div className="ev-date">
+            📅 {formatDate(event.date)}
+            {event.endDate && ` — ${formatDate(event.endDate)}`}
+          </div>
+          <h3 className="ev-title">{event.title}</h3>
+          {event.description && <p className="ev-desc">{event.description}</p>}
+          {event.location && <p className="ev-loc">📍 {event.location}</p>}
+          {!isPast && event.ctaLink && (
+            <span className="btn btn-primary ev-cta" style={{ display: "inline-block" }}>
+              {event.ctaText || "Đăng ký tham gia"} →
+            </span>
+          )}
+        </div>
       </div>
-    </div>
+    </a>
   );
 }
 
