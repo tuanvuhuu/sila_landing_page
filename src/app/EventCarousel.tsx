@@ -57,9 +57,13 @@ export default function EventCarousel({
   return (
     <div className="ev-carousel" ref={trackRef}>
       {events.map((ev) => (
-        <div
-          className={`ev-card ev-slide${variant === "history" ? " history ev-past" : ""}`}
+        <a
+          href={`/su-kien/${ev.id}`}
+          className={`ev-card-link ev-slide`}
           key={ev.id}
+        >
+        <div
+          className={`ev-card${variant === "history" ? " history ev-past" : ""}`}
         >
           {ev.image && (
             <div className="ev-img">
@@ -75,17 +79,13 @@ export default function EventCarousel({
             )}
             {ev.location && <p className="ev-loc">📍 {ev.location}</p>}
             {variant === "full" && ev.ctaLink && (
-              <a
-                href={ev.ctaLink}
-                className="btn btn-primary ev-cta"
-                target={ev.ctaLink.startsWith("http") ? "_blank" : undefined}
-                rel={ev.ctaLink.startsWith("http") ? "noreferrer" : undefined}
-              >
+              <span className="btn btn-primary ev-cta">
                 {ev.ctaText || "Đăng ký tham gia"} →
-              </a>
+              </span>
             )}
           </div>
         </div>
+        </a>
       ))}
     </div>
   );
