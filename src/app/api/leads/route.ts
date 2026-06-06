@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { isAuthed } from "@/lib/auth";
+import { isAuthedFromReq } from "@/lib/auth";
 import { sendLeadToCapi, sendEnrolledToCapi } from "@/lib/fbcapi";
 import { sendLeadEmail } from "@/lib/email";
 
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
 // Admin đổi trạng thái chăm sóc của một lead
 export async function PATCH(req: Request) {
-  if (!isAuthed()) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
   const { id, status } = await req.json();
@@ -75,8 +75,8 @@ export async function PATCH(req: Request) {
 }
 
 // Admin xem danh sách khách đăng ký
-export async function GET() {
-  if (!isAuthed()) {
+export async function GET(req: Request) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
   const leads = await prisma.lead.findMany({ orderBy: { createdAt: "desc" } });

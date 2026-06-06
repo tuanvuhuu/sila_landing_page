@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { isAuthed } from "@/lib/auth";
+import { isAuthedFromReq } from "@/lib/auth";
 import { getContent } from "@/lib/content";
+
+export const dynamic = "force-dynamic";
 
 // Trang công khai gọi GET để lấy nội dung mới nhất
 export async function GET() {
@@ -11,7 +13,7 @@ export async function GET() {
 
 // Trang admin gọi PUT để lưu nội dung (phải đăng nhập)
 export async function PUT(req: Request) {
-  if (!isAuthed()) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
   const data = await req.json();

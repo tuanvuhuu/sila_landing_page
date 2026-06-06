@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { isAuthed } from "@/lib/auth";
+import { isAuthedFromReq } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  if (!isAuthed()) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
 

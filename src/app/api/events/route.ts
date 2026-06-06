@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { isAuthed } from "@/lib/auth";
+import { isAuthedFromReq } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 // Lấy danh sách sự kiện (public)
 // ?history=1 → sự kiện đã qua; mặc định → sự kiện sắp tới
@@ -16,7 +17,7 @@ export async function GET(req: Request) {
 
   // Admin: lấy tất cả sự kiện (cần auth)
   if (all) {
-    if (!isAuthed()) {
+    if (!isAuthedFromReq(req)) {
       return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
     }
     const events = await prisma.event.findMany({ orderBy: { date: "desc" } });
@@ -37,7 +38,7 @@ export async function GET(req: Request) {
 
 // Tạo sự kiện mới (cần auth)
 export async function POST(req: Request) {
-  if (!isAuthed()) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
   const body = await req.json();
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
 
 // Cập nhật sự kiện (cần auth)
 export async function PUT(req: Request) {
-  if (!isAuthed()) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
   const body = await req.json();
@@ -96,7 +97,7 @@ export async function PUT(req: Request) {
 
 // Xóa sự kiện (cần auth)
 export async function DELETE(req: Request) {
-  if (!isAuthed()) {
+  if (!isAuthedFromReq(req)) {
     return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
   }
   const { id } = await req.json();
