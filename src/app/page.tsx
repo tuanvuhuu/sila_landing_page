@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
 import { prisma } from "@/lib/db";
 import LeadForm from "./LeadForm";
-import { ContactLink, ContactButtons } from "./Contact";
+import { ContactLink } from "./Contact";
 import EngagementTracker from "./EngagementTracker";
 import FaqSection from "./FaqSection";
 import EventCarousel from "./EventCarousel";
@@ -367,11 +367,19 @@ export default async function Home() {
       </footer>
 
       <div className="mobile-cta">
+        {c.contact.zalo && (
+          <a
+            href={`https://zalo.me/${c.contact.zalo.replace(/\s/g, "")}`}
+            className="mcta-zalo"
+            target="_blank"
+            rel="noreferrer"
+          >
+            💬 Zalo
+          </a>
+        )}
         <a href={tel} className="mcta-call">📞 Gọi ngay</a>
-        <a href="#signup" className="mcta-reg btn btn-primary">🎁 Đăng ký học thử</a>
+        <a href="#signup" className="mcta-reg btn btn-primary">🎁 Đăng ký</a>
       </div>
-
-      <ContactButtons phone={c.contact.phone} zalo={c.contact.zalo} messenger={c.contact.messenger} facebook={c.contact.facebook} />
 
       <SocialChatWidgets fbPageId={c.contact.fbPageId} zaloOAId={c.contact.zaloOAId} />
 

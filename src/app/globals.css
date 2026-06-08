@@ -322,10 +322,18 @@ footer .row { margin: 0.3rem 0; }
   transition: transform 0.15s;
 }
 .mcta-call:hover { transform: translateY(-2px); }
+.mcta-zalo {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: #0068ff; color: #fff;
+  border-radius: 999px; padding: 0.7rem 1.1rem;
+  font-family: "Quicksand"; font-weight: 700; font-size: 0.92rem;
+  white-space: nowrap; text-decoration: none;
+  transition: transform 0.15s;
+}
+.mcta-zalo:hover { transform: translateY(-2px); }
 .mcta-reg { flex: 1; justify-content: center; font-size: 0.92rem; padding: 0.75rem 1rem; }
 @media (max-width: 640px) {
   .mobile-cta { display: flex; }
-  .cc-fab { bottom: 80px; }
   footer { padding-bottom: 4.5rem; }
 }
 
