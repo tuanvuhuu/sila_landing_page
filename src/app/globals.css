@@ -437,6 +437,10 @@ footer .row { margin: 0.3rem 0; }
 .ev-detail-meta { font-size: 0.95rem; color: var(--muted); margin: 0 0 1.2rem; }
 .ev-detail-desc { color: var(--ink); font-size: 1rem; line-height: 1.75; margin: 1.4rem 0 2rem; }
 .ev-detail-desc p { margin: 0 0 0.5rem; }
+.ev-detail-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; margin-top: 1.5rem; }
+.ev-detail-gallery-item { border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; }
+.ev-detail-gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.ev-detail-gallery-item img:hover { transform: scale(1.04); }
 .ev-detail-cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
 /* Thẻ sự kiện có thể click */
 .ev-card-link { display: block; text-decoration: none; color: inherit; border-radius: 18px; }

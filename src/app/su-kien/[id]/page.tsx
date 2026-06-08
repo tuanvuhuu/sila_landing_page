@@ -78,6 +78,22 @@ export default async function EventDetailPage({ params }: Props) {
               </div>
             )}
 
+            {/* Gallery ảnh phụ */}
+            {(() => {
+              let imgs: string[] = [];
+              try { imgs = JSON.parse((ev as Record<string, unknown>).images as string ?? "[]"); } catch { imgs = []; }
+              if (!imgs.length) return null;
+              return (
+                <div className="ev-detail-gallery">
+                  {imgs.map((src, i) => (
+                    <div key={i} className="ev-detail-gallery-item">
+                      <img src={src} alt={`${ev.title} ảnh ${i + 1}`} />
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+
             {/* CTA */}
             {!isPast && (
               <div className="ev-detail-cta">

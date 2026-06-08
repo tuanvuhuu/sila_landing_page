@@ -21,6 +21,7 @@ type EventItem = {
   title: string;
   description: string;
   image: string;
+  images: string; // JSON array of additional image URLs
   date: string;
   endDate: string | null;
   location: string;
@@ -30,7 +31,7 @@ type EventItem = {
 };
 
 const EMPTY_EVENT: Omit<EventItem, "id"> = {
-  title: "", description: "", image: "", date: "", endDate: null,
+  title: "", description: "", image: "", images: "[]", date: "", endDate: null,
   location: "", ctaText: "Đăng ký tham gia", ctaLink: "#signup", status: "draft",
 };
 
@@ -145,6 +146,28 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
     } catch (err) {
       alert(`Lỗi upload ảnh: ${err instanceof Error ? err.message : "Không xác định"}`);
     }
+  }
+
+  async function uploadEventExtraImage(file: File) {
+    try {
+      const url = await uploadFile(file);
+      setEditingEvent((prev) => {
+        if (!prev) return prev;
+        const arr: string[] = JSON.parse(prev.images || "[]");
+        return { ...prev, images: JSON.stringify([...arr, url]) };
+      });
+    } catch (err) {
+      alert(`Lỗi upload ảnh: ${err instanceof Error ? err.message : "Không xác định"}`);
+    }
+  }
+
+  function removeEventExtraImage(idx: number) {
+    setEditingEvent((prev) => {
+      if (!prev) return prev;
+      const arr: string[] = JSON.parse(prev.images || "[]");
+      arr.splice(idx, 1);
+      return { ...prev, images: JSON.stringify(arr) };
+    });
   }
 
   function patch(updater: (draft: SiteContent) => void) {
@@ -634,7 +657,7 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
               </div>
               <div className="afield">
                 <label>Mô tả</label>
-                <textarea rows={3} value={editingEvent.description} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} placeholder="Mô tả chi tiết sự kiện..." />
+                <textarea rows={7} value={editingEvent.description} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} placeholder="Mô tả chi tiết sự kiện..." />
               </div>
               <div className="row2">
                 <div className="afield">
@@ -650,10 +673,32 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
                 <label>Địa điểm</label>
                 <input value={editingEvent.location} onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })} placeholder="VD: 123 Đường ABC, Quận 1" />
               </div>
-              <div className="afield">
-                <label>Ảnh bìa</label>
-                {editingEvent.image && <img src={editingEvent.image} alt="preview" style={{ width: 200, borderRadius: 8, marginBottom: 8 }} />}
-                <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && uploadEventImage(e.target.files[0])} />
+              <div className="row2">
+                <div className="afield">
+                  <label>Ảnh bìa</label>
+                  {editingEvent.image && <img src={editingEvent.image} alt="preview" style={{ width: "100%", maxWidth: 200, borderRadius: 8, marginBottom: 8, display: "block" }} />}
+                  <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && uploadEventImage(e.target.files[0])} />
+                </div>
+                <div className="afield">
+                  <label>Ảnh khác (gallery)</label>
+                  <div className="ev-img-gallery">
+                    {(JSON.parse(editingEvent.images || "[]") as string[]).map((url, idx) => (
+                      <div key={idx} className="ev-img-thumb">
+                        <img src={url} alt={`ảnh ${idx + 1}`} />
+                        <button onClick={() => removeEventExtraImage(idx)} title="Xoá">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                  <input type="file" accept="image/*" multiple
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (!files) return;
+                      Array.from(files).forEach((f) => uploadEventExtraImage(f));
+                      e.target.value = "";
+                    }}
+                  />
+                  <small style={{ color: "var(--muted)", display: "block", marginTop: 4 }}>Chọn nhiều ảnh cùng lúc được</small>
+                </div>
               </div>
               <div className="row2">
                 <div className="afield">

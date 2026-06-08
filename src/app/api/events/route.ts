@@ -48,11 +48,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Thiếu tiêu đề hoặc ngày" }, { status: 400 });
   }
 
+  const { images } = body;
   const event = await prisma.event.create({
     data: {
       title: String(title),
       description: String(description ?? ""),
       image: String(image ?? ""),
+      images: String(images ?? "[]"),
       date: new Date(date),
       endDate: endDate ? new Date(endDate) : null,
       location: String(location ?? ""),
@@ -85,6 +87,7 @@ export async function PUT(req: Request) {
   if (data.location !== undefined) updateData.location = String(data.location);
   if (data.ctaText !== undefined) updateData.ctaText = String(data.ctaText);
   if (data.ctaLink !== undefined) updateData.ctaLink = String(data.ctaLink);
+  if (data.images !== undefined) updateData.images = String(data.images);
   if (data.status !== undefined) updateData.status = String(data.status);
 
   const event = await prisma.event.update({
