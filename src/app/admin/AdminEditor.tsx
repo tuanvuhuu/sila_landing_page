@@ -482,7 +482,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         <h2>Số liệu nổi bật ({(c.stats ?? []).length})</h2>
         <div className="row2" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
           {(c.stats ?? []).map((s: Stat, i: number) => (
-            <div key={i} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+            <div key={i} className="item-header">
               <div className="afield" style={{ flex: "0 0 90px", marginBottom: 0 }}>
                 <label>Con số</label>
                 <input value={s.num} onChange={(e) => patch((d) => { d.stats[i].num = e.target.value; })} placeholder="VD: 2.000+" />
@@ -502,7 +502,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         <h2>Vì sao chọn chúng tôi ({(c.features ?? []).length} điểm nổi bật)</h2>
         {(c.features ?? []).map((f: Feature, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+            <div className="item-header">
               <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
                 <label>Tiêu đề điểm {i + 1}</label>
                 <input value={f.title} onChange={(e) => patch((d) => { d.features[i].title = e.target.value; })} />
@@ -524,7 +524,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         <h2>Chương trình học</h2>
         {c.programs.map((p, i) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+            <div className="item-header">
               <div className="row2" style={{ flex: 1 }}>
                 <div className="afield" style={{ marginBottom: 0 }}>
                   <label>Độ tuổi</label>
@@ -555,7 +555,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         </p>
         {(c.testimonials ?? []).map((t: Testimonial, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+            <div className="item-header">
               <div className="row2" style={{ flex: 1 }}>
                 <div className="afield" style={{ marginBottom: 0 }}>
                   <label>Tên phụ huynh</label>
@@ -648,7 +648,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         <h2>Câu hỏi thường gặp (FAQ)</h2>
         {(c.faq ?? []).map((item: FaqItem, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+            <div className="item-header">
               <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
                 <label>Câu hỏi</label>
                 <input value={item.q} onChange={(e) => patch((d) => { d.faq[i].q = e.target.value; })} />
@@ -755,7 +755,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         <h3 style={{ fontSize: "0.95rem", margin: "0.5rem 0 0.8rem" }}>Chủ đề (nút bấm)</h3>
         {(c.chatbot.topics ?? []).map((t: ChatTopic, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+            <div className="item-header">
               <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
                 <label>Nhãn nút</label>
                 <input value={t.label} onChange={(e) => patch((d) => { d.chatbot.topics[i].label = e.target.value; })} />
@@ -983,7 +983,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         ) : filteredLeads.length === 0 ? (
           <p className="muted">Không tìm thấy kết quả phù hợp.</p>
         ) : (
-          <div>
+          <div className="lead-table-wrap">
             <div className="lead-row h">
               <span>Tên</span><span>SĐT</span><span>Tuổi</span><span>Nguồn</span><span>Trạng thái</span><span>Thời gian</span>
             </div>

@@ -95,9 +95,43 @@
 .abtn-add:hover { background: #80B848; color: #fff; border-color: #80B848; }
 .thumb { width: 90px; height: 64px; object-fit: cover; border-radius: 9px; border: 1px solid #e9e6df; }
 .thumbs { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.item-header { display: flex; gap: 0.5rem; align-items: flex-end; }
+.item-header > .afield,
+.item-header > .row2 { flex: 1; min-width: 0; }
 .lead-row { display: grid; grid-template-columns: 1.1fr 1fr 0.6fr 1fr 1.1fr 1fr; align-items: center; gap: 0.5rem; padding: 0.55rem 0; border-bottom: 1px solid #f0eee8; font-size: 0.92rem; }
 .lead-row.h { font-weight: 800; color: #6b6480; }
-@media (max-width: 600px) { .lead-row { grid-template-columns: 1fr 1fr; } }
+.lead-table-wrap { overflow-x: auto; }
+
+/* ===== Mobile responsive ===== */
+@media (max-width: 600px) {
+  .admin-editor { padding: 1rem 0.8rem 4rem; }
+  .admin h1 { font-size: 1.2rem; }
+  .admin .muted { font-size: 0.82rem; }
+  .card { padding: 1rem; margin-bottom: 0.8rem; border-radius: 12px; }
+  .card h2 { font-size: 1rem; }
+  .row2 { grid-template-columns: 1fr; }
+  .item-header { flex-wrap: wrap; }
+  .item-header > .afield { flex: 1 1 100%; }
+  .item-header > .row2 { flex: 1 1 100%; }
+  .afield input, .afield textarea, .afield select { font-size: 0.88rem; padding: 0.5rem 0.65rem; }
+  .abtn { font-size: 0.82rem; padding: 0.45rem 0.8rem; }
+  .lead-row { grid-template-columns: 1fr 1fr; font-size: 0.82rem; gap: 0.3rem; }
+  .lead-row.h span:nth-child(n+3) { display: none; }
+  .lead-stats { gap: 0.4rem; }
+  .lstat { padding: 0.4rem 0.6rem; min-width: 60px; }
+  .lstat-n { font-size: 1.1rem; }
+  .save-bar { padding: 0.7rem 0; }
+  .dash-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .dash-row { grid-template-columns: 1fr; }
+  .dash-card { padding: 0.9rem 0.7rem; }
+  .dash-num { font-size: 1.6rem; }
+  .dash-icon { font-size: 1.3rem; margin-bottom: 0.2rem; }
+  .dash-funnel-row { grid-template-columns: 70px 1fr 28px 36px; gap: 0.4rem; }
+  .df-label { font-size: 0.78rem; }
+  .dash-actions { grid-template-columns: 1fr; }
+  .dash-action-btn { font-size: 0.82rem; padding: 0.6rem 0.7rem; }
+  .admin-tabs { gap: 0; overflow-x: auto; }
+}
 .lead-stats { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem; }
 .lstat { display: flex; flex-direction: column; align-items: center; background: #f8faf1; border: 1px solid #e7ecd8; border-radius: 12px; padding: 0.55rem 1rem; min-width: 76px; }
 .lstat-n { font-family: "Quicksand", sans-serif; font-weight: 700; font-size: 1.4rem; color: #5F8F2E; line-height: 1; }
