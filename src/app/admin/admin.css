@@ -58,10 +58,31 @@
   border: none;
   background: #fff;
 }
+.preview-iframe-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+}
 @media (max-width: 1279px) {
   .admin-preview { display: none; }
   .admin-editor { flex: 1; }
 }
+
+/* ===== Sparkline chart ===== */
+.sparkline-wrap {
+  padding: 0.5rem 0;
+  overflow-x: auto;
+}
+.sparkline-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.admin.dark .sparkline-svg text { fill: #8888a0; }
+.admin.dark .sparkline-svg text[fill="#5F8F2E"] { fill: #a0d870; }
 .admin h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
 .admin .muted { color: #6b6480; font-size: 0.92rem; }
 .admin-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.6rem; flex-wrap: wrap; gap: 0.6rem; }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { SiteContent, Testimonial, FaqItem, Stat, Feature, ChatTopic } from "@/lib/content";
+import type { SiteContent, Testimonial, FaqItem, Stat, Feature, ChatTopic, Branch } from "@/lib/content";
 import { Btn, BtnDel, BtnAdd, TextInput, TextArea, SelectInput, FileUpload, DateInput, ToastProvider, useToast } from "./ui";
 import "./admin.css";
 
@@ -78,6 +78,14 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [darkMode, setDarkMode] = useState(false);
 
+  // Device preview mode
+  type PreviewDevice = "desktop" | "tablet" | "mobile";
+  const [previewDevice, setPreviewDevice] = useState<PreviewDevice>("desktop");
+  const PREVIEW_WIDTHS: Record<PreviewDevice, string> = { desktop: "100%", tablet: "768px", mobile: "375px" };
+
+  // Lead polling
+  const prevLeadCount = useRef(0);
+
   const CONTENT_TABS = ["hero", "programs", "reviews", "faq", "contact", "chatbot"];
 
   const TABS = [
@@ -118,13 +126,45 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
     activeEvents: events.filter((e) => e.status === "published").length,
   };
 
+  // Sparkline: leads per day for last 7 days
+  const leadsByDay = (() => {
+    const days: { label: string; count: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const ds = d.toDateString();
+      const label = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+      const count = leads.filter((l) => new Date(l.createdAt).toDateString() === ds).length;
+      days.push({ label, count });
+    }
+    return days;
+  })();
+
   useEffect(() => {
     fetch("/api/leads")
       .then((r) => (r.ok ? r.json() : []))
-      .then(setLeads)
+      .then((data: Lead[]) => { setLeads(data); prevLeadCount.current = data.length; })
       .catch(() => setLeads([]));
     loadEvents();
   }, []);
+
+  // Poll for new leads every 30s
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/leads");
+        if (!res.ok) return;
+        const data: Lead[] = await res.json();
+        if (data.length > prevLeadCount.current && prevLeadCount.current > 0) {
+          const newCount = data.length - prevLeadCount.current;
+          toast(`🔔 Có ${newCount} khách mới đăng ký!`, "info");
+        }
+        prevLeadCount.current = data.length;
+        setLeads(data);
+      } catch { /* ignore */ }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadEvents() {
     try {
@@ -445,6 +485,45 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
             </div>
           </div>
         </div>
+
+        {/* Sparkline chart */}
+        <div className="card" style={{ marginTop: "1rem" }}>
+          <h2>📈 Đăng ký 7 ngày qua</h2>
+          <div className="sparkline-wrap">
+            <svg viewBox="0 0 280 80" className="sparkline-svg">
+              {(() => {
+                const max = Math.max(...leadsByDay.map((d) => d.count), 1);
+                const points = leadsByDay.map((d, i) => ({
+                  x: 20 + i * 40,
+                  y: 70 - (d.count / max) * 55,
+                }));
+                const line = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+                const area = `${line} L${points[points.length - 1].x},70 L${points[0].x},70 Z`;
+                return (
+                  <>
+                    <defs>
+                      <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#80B848" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#80B848" stopOpacity="0.02" />
+                      </linearGradient>
+                    </defs>
+                    <path d={area} fill="url(#sparkGrad)" />
+                    <path d={line} fill="none" stroke="#80B848" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    {points.map((p, i) => (
+                      <g key={i}>
+                        <circle cx={p.x} cy={p.y} r="4" fill="#fff" stroke="#80B848" strokeWidth="2" />
+                        <text x={p.x} y={75} textAnchor="middle" fontSize="8" fill="#6b6480" fontWeight="600">{leadsByDay[i].label}</text>
+                        {leadsByDay[i].count > 0 && (
+                          <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize="9" fill="#5F8F2E" fontWeight="800">{leadsByDay[i].count}</text>
+                        )}
+                      </g>
+                    ))}
+                  </>
+                );
+              })()}
+            </svg>
+          </div>
+        </div>
       </div>
       )}
 
@@ -729,6 +808,46 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
             <small style={{ color: "#6b6480", fontSize: "0.8rem" }}>Vào Zalo Official Account Manager → OA ID</small>
           </div>
         </div>
+      </div>
+
+      <div className="card">
+        <h2>🏢 Cơ sở ({(c.branches ?? []).length})</h2>
+        <p className="muted" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
+          💡 Thêm các cơ sở của trung tâm. Mỗi cơ sở sẽ hiện trên trang chủ với bản đồ.
+          Để lấy link bản đồ: vào Google Maps → tìm địa chỉ → bấm &quot;Chia sẻ&quot; → &quot;Nhúng bản đồ&quot; → copy link trong thẻ iframe (phần src=&quot;...&quot;).
+        </p>
+        {(c.branches ?? []).map((b: Branch, i: number) => (
+          <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
+            <div className="item-header">
+              <div className="row2" style={{ flex: 1 }}>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Tên cơ sở</label>
+                  <input value={b.name} onChange={(e) => patch((d) => { d.branches[i].name = e.target.value; })} placeholder="VD: Cơ sở 1 — Quận 1" />
+                </div>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>SĐT cơ sở</label>
+                  <input value={b.phone} onChange={(e) => patch((d) => { d.branches[i].phone = e.target.value; })} placeholder="0900 000 001" />
+                </div>
+              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.branches.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
+            </div>
+            <div className="afield" style={{ marginTop: "0.6rem" }}>
+              <label>Địa chỉ</label>
+              <input value={b.address} onChange={(e) => patch((d) => { d.branches[i].address = e.target.value; })} placeholder="123 Đường ABC, Quận 1, TP.HCM" />
+            </div>
+            <div className="afield">
+              <label>Google Maps Embed URL</label>
+              <input value={b.mapEmbed} onChange={(e) => patch((d) => { d.branches[i].mapEmbed = e.target.value; })} placeholder="https://www.google.com/maps/embed?pb=..." />
+              <small style={{ color: "#6b6480", fontSize: "0.8rem" }}>Google Maps → Chia sẻ → Nhúng bản đồ → copy link trong src=&quot;...&quot;</small>
+              {b.mapEmbed && (
+                <div style={{ marginTop: "0.5rem", borderRadius: 12, overflow: "hidden", border: "1px solid #e9e6df" }}>
+                  <iframe src={b.mapEmbed} width="100%" height="150" style={{ border: 0, display: "block" }} loading="lazy" title={`Map ${b.name}`} />
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.branches = d.branches ?? []; d.branches.push({ name: "", address: "", phone: "", mapEmbed: "" }); })}>＋ Thêm cơ sở</button>
       </div>
       </>)}
 
@@ -1031,9 +1150,32 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
       <div className="admin-preview">
         <div className="admin-preview-header">
           <span>👁 Xem trước</span>
+          <div className="preview-device">
+            {(["desktop", "tablet", "mobile"] as PreviewDevice[]).map((d) => (
+              <button key={d} className={previewDevice === d ? "active" : ""} onClick={() => setPreviewDevice(d)} title={d === "desktop" ? "Desktop" : d === "tablet" ? "Tablet (768px)" : "Mobile (375px)"}>
+                {d === "desktop" ? "💻" : d === "tablet" ? "📟" : "📱"}
+              </button>
+            ))}
+          </div>
           <button className="abtn" style={{ padding: "0.3rem 0.8rem", fontSize: "0.8rem" }} onClick={() => { if (iframeRef.current) iframeRef.current.src = iframeRef.current.src; }}>↻ Tải lại</button>
         </div>
-        <iframe ref={iframeRef} src="/" title="Preview" />
+        <div className="preview-iframe-wrap" style={{ display: "flex", justifyContent: "center", flex: 1, overflow: "auto", background: previewDevice !== "desktop" ? "#e9e6df" : "#fff" }}>
+          <iframe
+            ref={iframeRef}
+            src="/"
+            title="Preview"
+            style={{
+              width: PREVIEW_WIDTHS[previewDevice],
+              maxWidth: "100%",
+              height: "100%",
+              border: previewDevice !== "desktop" ? "1px solid #ccc" : "none",
+              borderRadius: previewDevice !== "desktop" ? "16px" : 0,
+              boxShadow: previewDevice !== "desktop" ? "0 8px 32px rgba(0,0,0,0.12)" : "none",
+              background: "#fff",
+              transition: "width 0.3s ease, border-radius 0.3s ease, box-shadow 0.3s ease",
+            }}
+          />
+        </div>
       </div>
     </div>
   );

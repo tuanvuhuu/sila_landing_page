@@ -7,6 +7,7 @@ export type FaqItem = { q: string; a: string };
 export type Stat = { num: string; lbl: string };
 export type Feature = { title: string; desc: string };
 export type ChatTopic = { label: string; answer: string };
+export type Branch = { name: string; address: string; phone: string; mapEmbed: string };
 export type Chatbot = {
   enabled: boolean;
   title: string;
@@ -32,6 +33,7 @@ export type SiteContent = {
   faq: FaqItem[];
   promo: { title: string; desc: string };
   contact: { phone: string; address: string; email: string; zalo: string; messenger: string; facebook: string; fbPageId: string; zaloOAId: string };
+  branches: Branch[];
   chatbot: Chatbot;
 };
 
@@ -89,6 +91,20 @@ export const defaultContent: SiteContent = {
     fbPageId: "",
     zaloOAId: "",
   },
+  branches: [
+    {
+      name: "Cơ sở 1 — Quận 1",
+      address: "123 Đường ABC, Phường XYZ, Quận 1, TP.HCM",
+      phone: "0900 000 001",
+      mapEmbed: "",
+    },
+    {
+      name: "Cơ sở 2 — Quận 7",
+      address: "456 Đường DEF, Phường UVW, Quận 7, TP.HCM",
+      phone: "0900 000 002",
+      mapEmbed: "",
+    },
+  ],
   chatbot: {
     enabled: true,
     title: "Trợ lý ESL 🤖",
@@ -124,6 +140,7 @@ export const getContent = cache(async (): Promise<SiteContent> => {
       features: parsed.features ?? defaultContent.features,
       testimonials: parsed.testimonials ?? defaultContent.testimonials,
       faq: parsed.faq ?? defaultContent.faq,
+      branches: parsed.branches ?? defaultContent.branches,
     };
   } catch {
     return defaultContent;
