@@ -6,6 +6,7 @@ function hash(value: string): string {
 
 type Common = {
   phone: string;
+  name?: string;
   fbclid?: string;
   fbp?: string;
   clientIp?: string;
@@ -16,6 +17,17 @@ type Common = {
 function buildUserData(c: Common): Record<string, unknown> {
   const digits = c.phone.replace(/\D/g, "");
   const ud: Record<string, unknown> = { ph: [hash(digits)] };
+
+  if (c.name) {
+    const parts = c.name.trim().split(/\s+/);
+    if (parts.length > 0) {
+      const first = parts[parts.length - 1]; // Tên (ví dụ: A)
+      const last = parts[0]; // Họ (ví dụ: Nguyễn)
+      ud.fn = [hash(first)];
+      ud.ln = [hash(last)];
+    }
+  }
+
   if (c.fbclid) ud.fbc = `fb.1.${Date.now()}.${c.fbclid}`;
   if (c.fbp) ud.fbp = c.fbp;
   if (c.clientIp) ud.client_ip_address = c.clientIp;

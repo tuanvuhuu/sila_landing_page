@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import FacebookPixel from "@/components/FacebookPixel";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import UtmTracker from "@/components/UtmTracker";
+import TikTokPixel from "@/components/TikTokPixel";
 
 export const metadata: Metadata = {
   title: "ESL Academy — English as a Second Language",
@@ -20,6 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <FacebookPixel />
+        <GoogleAnalytics />
+        <TikTokPixel />
+        <UtmTracker />
         {children}
       </body>
     </html>

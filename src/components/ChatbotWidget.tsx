@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Chatbot, ChatTopic, FaqItem } from "@/lib/content";
 
+import { getPersistedUtm } from "@/lib/utm";
+import { fireTikTokEvent } from "@/components/TikTokPixel";
+
 type Msg = { from: "bot" | "user"; text: string };
 type Mode = "menu" | "answer" | "askName" | "askPhone" | "sending" | "done";
 type Utm = Record<string, string>;
@@ -22,16 +25,9 @@ export default function ChatbotWidget({
   const [utm, setUtm] = useState<Utm>({});
   const msgsRef = useRef<HTMLDivElement>(null);
 
-  // Thu thập UTM giống LeadForm
+  // Thu thập UTM
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search);
-    const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
-    const found: Utm = {};
-    keys.forEach((k) => {
-      const v = p.get(k);
-      if (v) found[k] = v;
-    });
-    setUtm(found);
+    setUtm(getPersistedUtm());
   }, []);
 
   // Cuộn đầu khi chỉ có lời chào, cuộn cuối khi có hội thoại
@@ -97,6 +93,7 @@ export default function ChatbotWidget({
       });
       if (!res.ok) throw new Error();
       window.fbq?.("track", "Lead", { content_name: "Chatbot" }, { eventID: eventId });
+      fireTikTokEvent("SubmitForm");
       pushBot(config.leadSuccess);
       setMode("done");
     } catch {

@@ -2,28 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getPersistedUtm } from "@/lib/utm";
+import { fireTikTokEvent } from "@/components/TikTokPixel";
 
 type Utm = Record<string, string>;
 
-export default function LeadForm({ ctaText }: { ctaText: string }) {
+export default function LeadForm({
+  ctaText,
+  initialAgeGroup = "",
+  hideAgeSelect = false,
+}: {
+  ctaText: string;
+  initialAgeGroup?: string;
+  hideAgeSelect?: boolean;
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [ageGroup, setAgeGroup] = useState("");
+  const [ageGroup, setAgeGroup] = useState(initialAgeGroup);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [utm, setUtm] = useState<Utm>({});
   const startedRef = useRef(false);
 
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search);
-    const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
-    const found: Utm = {};
-    keys.forEach((k) => {
-      const v = p.get(k);
-      if (v) found[k] = v;
-    });
-    setUtm(found);
+    setUtm(getPersistedUtm());
   }, []);
 
   function onStart() {
@@ -51,6 +54,7 @@ export default function LeadForm({ ctaText }: { ctaText: string }) {
       });
       if (!res.ok) throw new Error();
       window.fbq?.("track", "Lead", { content_name: "Dang ky hoc thu" }, { eventID: eventId });
+      fireTikTokEvent("SubmitForm");
       // Chuyển sang trang cảm ơn riêng
       router.push("/cam-on");
     } catch {
@@ -69,15 +73,17 @@ export default function LeadForm({ ctaText }: { ctaText: string }) {
         <label>Số điện thoại *</label>
         <input value={phone} onFocus={onStart} onChange={(e) => setPhone(e.target.value)} placeholder="VD: 0900 000 000" />
       </div>
-      <div className="field">
-        <label>Độ tuổi của bé</label>
-        <select value={ageGroup} onFocus={onStart} onChange={(e) => setAgeGroup(e.target.value)}>
-          <option value="">— Chọn độ tuổi —</option>
-          <option>3–4 tuổi</option>
-          <option>5–7 tuổi</option>
-          <option>8–10 tuổi</option>
-        </select>
-      </div>
+      {!hideAgeSelect && (
+        <div className="field">
+          <label>Độ tuổi của bé</label>
+          <select value={ageGroup} onFocus={onStart} onChange={(e) => setAgeGroup(e.target.value)}>
+            <option value="">— Chọn độ tuổi —</option>
+            <option>3–4 tuổi</option>
+            <option>5–7 tuổi</option>
+            <option>8–10 tuổi</option>
+          </select>
+        </div>
+      )}
       {error && <p style={{ color: "#e24f4f", fontWeight: 700, marginBottom: "0.6rem" }}>{error}</p>}
       <button className="btn btn-primary" onClick={submit} disabled={loading}>
         {loading ? "Đang gửi..." : `🚀 ${ctaText}`}

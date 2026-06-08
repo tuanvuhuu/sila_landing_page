@@ -317,6 +317,13 @@
   grid-template-columns: 90px 1fr 36px 42px;
   align-items: center;
   gap: 0.6rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.dash-funnel-row:hover {
+  background: rgba(128, 184, 72, 0.08);
+  transform: translateX(4px);
 }
 .df-label { font-size: 0.85rem; font-weight: 600; color: #6b6480; }
 .df-bar-wrap {

@@ -3,6 +3,7 @@ import { getContent } from "@/lib/content";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ContactLink, ContactButtons } from "../../Contact";
+import LeadForm from "../../LeadForm";
 
 export const dynamic = "force-dynamic";
 
@@ -109,7 +110,7 @@ export default async function EventDetailPage({ params }: Props) {
                     {ev.ctaText || "Đăng ký tham gia"} →
                   </a>
                 ) : (
-                  <a href="/#signup" className="btn btn-primary" style={{ fontSize: "1.05rem", padding: "0.85rem 2rem" }}>
+                  <a href="#register" className="btn btn-primary" style={{ fontSize: "1.05rem", padding: "0.85rem 2rem" }}>
                     {ev.ctaText || "Đăng ký tham gia"} →
                   </a>
                 )}
@@ -124,6 +125,21 @@ export default async function EventDetailPage({ params }: Props) {
                 <a href="/#signup" className="btn btn-primary" style={{ fontSize: "1.05rem", padding: "0.85rem 2rem" }}>
                   🎁 Đăng ký khoá học tiếp theo →
                 </a>
+              </div>
+            )}
+
+            {/* Form đăng ký trực tiếp ngay trên trang sự kiện */}
+            {(!ev.ctaLink || ev.ctaLink === "#signup") && !isPast && (
+              <div id="register" className="ev-register-section" style={{ marginTop: "2.5rem", padding: "1.5rem", background: "#fbfaf7", borderRadius: 16, border: "1px solid #e2dfd5" }}>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "0.5rem" }}>Đăng ký tham gia sự kiện</h3>
+                <p style={{ fontSize: "0.88rem", color: "#6b6480", marginBottom: "1.2rem" }}>
+                  Ba mẹ vui lòng để lại thông tin dưới đây, trung tâm sẽ liên hệ xác nhận trong thời gian sớm nhất.
+                </p>
+                <LeadForm
+                  ctaText={ev.ctaText || "Đăng ký tham gia"}
+                  initialAgeGroup={`Sự kiện: ${ev.title}`}
+                  hideAgeSelect={true}
+                />
               </div>
             )}
           </div>

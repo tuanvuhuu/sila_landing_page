@@ -411,7 +411,16 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
               {dashStats.byStatus.map((s) => {
                 const pct = dashStats.totalLeads > 0 ? Math.round((s.count / dashStats.totalLeads) * 100) : 0;
                 return (
-                  <div key={s.value} className="dash-funnel-row">
+                  <div
+                    key={s.value}
+                    className="dash-funnel-row"
+                    onClick={() => {
+                      setLeadFilter(s.value);
+                      switchTab("leads");
+                    }}
+                    style={{ cursor: "pointer" }}
+                    title={`Xem danh sách khách hàng ${s.label}`}
+                  >
                     <span className="df-label">{s.label}</span>
                     <div className="df-bar-wrap">
                       <div className="df-bar" style={{ width: `${Math.max(pct, 2)}%` }} />

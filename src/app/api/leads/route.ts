@@ -29,10 +29,10 @@ export async function POST(req: Request) {
     },
   });
 
-  // Gửi Lead về Facebook (server-side). eventId dùng chung với Pixel để khử trùng.
   await sendLeadToCapi({
     eventId: eventId ? String(eventId) : undefined,
     phone: String(phone),
+    name: String(name),
     fbclid: u.fbclid,
     fbp: req.headers.get("cookie")?.match(/_fbp=([^;]+)/)?.[1],
     clientIp: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
@@ -68,7 +68,11 @@ export async function PATCH(req: Request) {
 
   // Khi đánh dấu "đã ghi danh" -> gửi sự kiện Purchase về Facebook
   if (status === "enrolled") {
-    await sendEnrolledToCapi({ phone: lead.phone, fbclid: lead.fbclid || undefined });
+    await sendEnrolledToCapi({
+      phone: lead.phone,
+      name: lead.name,
+      fbclid: lead.fbclid || undefined
+    });
   }
 
   return NextResponse.json({ ok: true });
