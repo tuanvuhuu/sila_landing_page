@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteContent, Testimonial, FaqItem, Stat, Feature, ChatTopic } from "@/lib/content";
+import { Btn, BtnDel, BtnAdd, TextInput, TextArea, SelectInput, FileUpload, DateInput, ToastProvider, useToast } from "./ui";
 import "./admin.css";
 
 type Lead = {
@@ -54,7 +55,7 @@ async function uploadFile(file: File): Promise<string> {
   return data.url as string;
 }
 
-export default function AdminEditor({ initial }: { initial: SiteContent }) {
+function AdminEditorInner({ initial }: { initial: SiteContent }) {
   const router = useRouter();
   const [c, setC] = useState<SiteContent>(initial);
   const [saved, setSaved] = useState(false);
@@ -62,24 +63,71 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [galleryProgress, setGalleryProgress] = useState("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const isDirty = useRef(false);
 
   // Events state
   const [events, setEvents] = useState<EventItem[]>([]);
   const [editingEvent, setEditingEvent] = useState<(Omit<EventItem, "id"> & { id?: number }) | null>(null);
   const [eventSaving, setEventSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  // New feature states
+  const [leadSearch, setLeadSearch] = useState("");
+  const [leadFilter, setLeadFilter] = useState("all");
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [darkMode, setDarkMode] = useState(false);
+
+  const CONTENT_TABS = ["hero", "programs", "reviews", "faq", "contact", "chatbot"];
+
+  const TABS = [
+    { id: "dashboard", icon: "📊", label: "Tổng quan" },
+    { id: "hero", icon: "🏠", label: "Trang chủ" },
+    { id: "programs", icon: "📚", label: "Chương trình" },
+    { id: "reviews", icon: "⭐", label: "Đánh giá" },
+    { id: "faq", icon: "❓", label: "FAQ & Ưu đãi" },
+    { id: "contact", icon: "📞", label: "Liên hệ" },
+    { id: "chatbot", icon: "🤖", label: "Chatbot" },
+    { id: "events", icon: "🎉", label: "Sự kiện", badge: events.length },
+    { id: "leads", icon: "👥", label: "Khách hàng", badge: leads.length },
+  ];
+
+  // Filtered leads
+  const filteredLeads = leads.filter((l) => {
+    if (leadFilter !== "all" && (l.status || "new") !== leadFilter) return false;
+    if (leadSearch) {
+      const q = leadSearch.toLowerCase();
+      return l.name.toLowerCase().includes(q) || l.phone.includes(q);
+    }
+    return true;
+  });
+
+  // Dashboard stats
+  const dashStats = {
+    totalLeads: leads.length,
+    newToday: leads.filter((l) => {
+      const d = new Date(l.createdAt);
+      const now = new Date();
+      return d.toDateString() === now.toDateString();
+    }).length,
+    byStatus: STATUSES.map((s) => ({
+      ...s,
+      count: leads.filter((l) => (l.status || "new") === s.value).length,
+    })),
+    totalEvents: events.length,
+    activeEvents: events.filter((e) => e.status === "published").length,
+  };
 
   useEffect(() => {
     fetch("/api/leads")
       .then((r) => (r.ok ? r.json() : []))
       .then(setLeads)
       .catch(() => setLeads([]));
-    // Load events (all, including draft)
     loadEvents();
   }, []);
 
   async function loadEvents() {
     try {
-      // Fetch all events (published + draft) for admin
       const res = await fetch("/api/events?all=1");
       if (res.ok) setEvents(await res.json());
     } catch { /* ignore */ }
@@ -177,7 +225,24 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
       return next;
     });
     setSaved(false);
+    isDirty.current = true;
   }
+
+  // Move item up/down in array
+  function moveItem<T>(arr: T[], from: number, to: number): T[] {
+    if (to < 0 || to >= arr.length) return arr;
+    const clone = [...arr];
+    const [item] = clone.splice(from, 1);
+    clone.splice(to, 0, item);
+    return clone;
+  }
+
+  // Collapsible card toggle
+  function toggleCard(key: string) {
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  const { toast } = useToast();
 
   async function save() {
     setSaving(true);
@@ -189,11 +254,33 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
       });
       if (!res.ok) throw new Error();
       setSaved(true);
+      isDirty.current = false;
+      toast("Đã lưu thành công!", "success");
+      if (iframeRef.current) iframeRef.current.src = iframeRef.current.src;
     } catch {
-      alert("Lưu thất bại. Bạn đã đăng nhập chưa?");
+      toast("Lưu thất bại. Bạn đã đăng nhập chưa?", "error");
     } finally {
       setSaving(false);
     }
+  }
+
+  // Warn on page leave with unsaved changes
+  useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (isDirty.current) {
+        e.preventDefault();
+      }
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
+
+  // Tab switch with unsaved changes warning
+  function switchTab(id: string) {
+    if (isDirty.current && CONTENT_TABS.includes(activeTab)) {
+      if (!confirm("Bạn có thay đổi chưa lưu. Chuyển tab sẽ mất dữ liệu. Tiếp tục?")) return;
+    }
+    setActiveTab(id);
   }
 
   async function logout() {
@@ -262,18 +349,97 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
   }
 
   return (
-    <div className="admin">
+    <div className={`admin${darkMode ? " dark" : ""}`}>
+      <div className="admin-editor">
       <div className="admin-top">
         <div>
           <h1>Quản trị nội dung</h1>
           <p className="muted">Sửa nội dung, lưu lại là trang công khai cập nhật ngay.</p>
         </div>
-        <div style={{ display: "flex", gap: "0.6rem" }}>
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+          <button className="abtn" onClick={() => setDarkMode(!darkMode)} title={darkMode ? "Sáng" : "Tối"} style={{ padding: "0.4rem 0.7rem" }}>
+            {darkMode ? "☀️" : "🌙"}
+          </button>
           <a className="abtn" href="/" target="_blank" rel="noreferrer">Xem trang ↗</a>
-          <button className="abtn" onClick={logout}>Đăng xuất</button>
+          <Btn onClick={logout}>Đăng xuất</Btn>
         </div>
       </div>
 
+      <div className="admin-tabs">
+        {TABS.map((t) => (
+          <button key={t.id} className={`admin-tab${activeTab === t.id ? " active" : ""}`} onClick={() => switchTab(t.id)}>
+            <span className="tab-icon">{t.icon}</span>
+            <span className="tab-label">{t.label}</span>
+            {t.badge ? <span className="tab-badge">{t.badge}</span> : null}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "dashboard" && (
+      <div className="dashboard">
+        <div className="dash-welcome">
+          <h2>👋 Xin chào! Đây là tổng quan trung tâm <strong>{c.centerName}</strong></h2>
+        </div>
+
+        <div className="dash-grid">
+          <div className="dash-card dc-green">
+            <div className="dash-icon">👥</div>
+            <div className="dash-num">{dashStats.totalLeads}</div>
+            <div className="dash-label">Tổng khách đăng ký</div>
+          </div>
+          <div className="dash-card dc-orange">
+            <div className="dash-icon">🔥</div>
+            <div className="dash-num">{dashStats.newToday}</div>
+            <div className="dash-label">Mới hôm nay</div>
+          </div>
+          <div className="dash-card dc-blue">
+            <div className="dash-icon">🎉</div>
+            <div className="dash-num">{dashStats.totalEvents}</div>
+            <div className="dash-label">Sự kiện</div>
+          </div>
+          <div className="dash-card dc-purple">
+            <div className="dash-icon">✅</div>
+            <div className="dash-num">{dashStats.activeEvents}</div>
+            <div className="dash-label">Đang hoạt động</div>
+          </div>
+        </div>
+
+        <div className="dash-row">
+          <div className="card dash-status-card">
+            <h2>📊 Phễu khách hàng</h2>
+            <div className="dash-funnel">
+              {dashStats.byStatus.map((s) => {
+                const pct = dashStats.totalLeads > 0 ? Math.round((s.count / dashStats.totalLeads) * 100) : 0;
+                return (
+                  <div key={s.value} className="dash-funnel-row">
+                    <span className="df-label">{s.label}</span>
+                    <div className="df-bar-wrap">
+                      <div className="df-bar" style={{ width: `${Math.max(pct, 2)}%` }} />
+                    </div>
+                    <span className="df-count">{s.count}</span>
+                    <span className="df-pct">{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="card dash-actions-card">
+            <h2>⚡ Truy cập nhanh</h2>
+            <div className="dash-actions">
+              <button className="dash-action-btn" onClick={() => switchTab("hero")}>🏠 Sửa trang chủ</button>
+              <button className="dash-action-btn" onClick={() => switchTab("programs")}>📚 Chương trình</button>
+              <button className="dash-action-btn" onClick={() => switchTab("leads")}>👥 Xem khách hàng</button>
+              <button className="dash-action-btn" onClick={() => switchTab("events")}>🎉 Quản lý sự kiện</button>
+              <button className="dash-action-btn" onClick={() => switchTab("chatbot")}>🤖 Cài chatbot</button>
+              <button className="dash-action-btn" onClick={() => switchTab("faq")}>❓ FAQ & Ưu đãi</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      )}
+
+      {activeTab === "hero" && (<>
       <div className="card">
         <h2>Thông tin chung</h2>
         <div className="afield">
@@ -306,14 +472,14 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
             {c.hero.image && <img className="thumb" src={c.hero.image} alt="hero" />}
             <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) onHeroImage(f); }} />
             {c.hero.image && (
-              <button className="abtn" onClick={() => patch((d) => { d.hero.image = ""; })}>Xóa ảnh</button>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.hero.image = ""; })} title="Xóa ảnh">🗑 Xóa</button>
             )}
           </div>
         </div>
       </div>
 
       <div className="card">
-        <h2>Số liệu nổi bật</h2>
+        <h2>Số liệu nổi bật ({(c.stats ?? []).length})</h2>
         <div className="row2" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
           {(c.stats ?? []).map((s: Stat, i: number) => (
             <div key={i} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
@@ -325,53 +491,63 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
                 <label>Nhãn</label>
                 <input value={s.lbl} onChange={(e) => patch((d) => { d.stats[i].lbl = e.target.value; })} placeholder="VD: Học viên" />
               </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.stats.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
             </div>
           ))}
         </div>
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.stats = d.stats ?? []; d.stats.push({ num: "", lbl: "" }); })}>＋ Thêm mới</button>
       </div>
 
       <div className="card">
-        <h2>Vì sao chọn chúng tôi (4 điểm nổi bật)</h2>
+        <h2>Vì sao chọn chúng tôi ({(c.features ?? []).length} điểm nổi bật)</h2>
         {(c.features ?? []).map((f: Feature, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div className="afield">
-              <label>Tiêu đề điểm {i + 1}</label>
-              <input value={f.title} onChange={(e) => patch((d) => { d.features[i].title = e.target.value; })} />
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Tiêu đề điểm {i + 1}</label>
+                <input value={f.title} onChange={(e) => patch((d) => { d.features[i].title = e.target.value; })} />
+              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.features.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
             </div>
-            <div className="afield">
+            <div className="afield" style={{ marginTop: "0.6rem" }}>
               <label>Mô tả</label>
               <textarea value={f.desc} onChange={(e) => patch((d) => { d.features[i].desc = e.target.value; })} />
             </div>
           </div>
         ))}
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.features = d.features ?? []; d.features.push({ title: "", desc: "" }); })}>＋ Thêm mới</button>
       </div>
+      </>)}
 
+      {activeTab === "programs" && (<>
       <div className="card">
         <h2>Chương trình học</h2>
         {c.programs.map((p, i) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div className="row2">
-              <div className="afield">
-                <label>Độ tuổi</label>
-                <input value={p.age} onChange={(e) => patch((d) => { d.programs[i].age = e.target.value; })} />
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              <div className="row2" style={{ flex: 1 }}>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Độ tuổi</label>
+                  <input value={p.age} onChange={(e) => patch((d) => { d.programs[i].age = e.target.value; })} />
+                </div>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Tên chương trình</label>
+                  <input value={p.title} onChange={(e) => patch((d) => { d.programs[i].title = e.target.value; })} />
+                </div>
               </div>
-              <div className="afield">
-                <label>Tên chương trình</label>
-                <input value={p.title} onChange={(e) => patch((d) => { d.programs[i].title = e.target.value; })} />
-              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.programs.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
             </div>
-            <div className="afield">
+            <div className="afield" style={{ marginTop: "0.6rem" }}>
               <label>Mô tả</label>
               <textarea value={p.desc} onChange={(e) => patch((d) => { d.programs[i].desc = e.target.value; })} />
             </div>
-            <button className="abtn" onClick={() => patch((d) => { d.programs.splice(i, 1); })}>Xóa chương trình</button>
           </div>
         ))}
-        <button className="abtn" style={{ marginTop: "0.9rem" }} onClick={() => patch((d) => { d.programs.push({ age: "", title: "", desc: "" }); })}>
-          + Thêm chương trình
-        </button>
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.programs.push({ age: "", title: "", desc: "" }); })}>＋ Thêm mới</button>
       </div>
+      </>)}
 
+      {activeTab === "reviews" && (<>
       <div className="card">
         <h2>Đánh giá phụ huynh ({c.testimonials?.length || 0})</h2>
         <p className="muted" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
@@ -379,15 +555,18 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
         </p>
         {(c.testimonials ?? []).map((t: Testimonial, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div className="row2">
-              <div className="afield">
-                <label>Tên phụ huynh</label>
-                <input value={t.name} onChange={(e) => patch((d) => { d.testimonials[i].name = e.target.value; })} />
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              <div className="row2" style={{ flex: 1 }}>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Tên phụ huynh</label>
+                  <input value={t.name} onChange={(e) => patch((d) => { d.testimonials[i].name = e.target.value; })} />
+                </div>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Vai trò (VD: Mẹ của bé 5 tuổi)</label>
+                  <input value={t.role} onChange={(e) => patch((d) => { d.testimonials[i].role = e.target.value; })} />
+                </div>
               </div>
-              <div className="afield">
-                <label>Vai trò (VD: Mẹ của bé 5 tuổi)</label>
-                <input value={t.role} onChange={(e) => patch((d) => { d.testimonials[i].role = e.target.value; })} />
-              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.testimonials.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
             </div>
             <div className="afield">
               <label>Nội dung đánh giá</label>
@@ -417,24 +596,14 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
                     }}
                   />
                   {t.avatar && (
-                    <button className="abtn" onClick={() => patch((d) => { d.testimonials[i].avatar = ""; })}>Xóa ảnh</button>
+                    <button className="abtn abtn-del" onClick={() => patch((d) => { d.testimonials[i].avatar = ""; })} title="Xóa ảnh">🗑</button>
                   )}
                 </div>
               </div>
             </div>
-            <button className="abtn" onClick={() => patch((d) => { d.testimonials.splice(i, 1); })}>Xóa đánh giá này</button>
           </div>
         ))}
-        <button
-          className="abtn"
-          style={{ marginTop: "0.9rem" }}
-          onClick={() => patch((d) => {
-            d.testimonials = d.testimonials ?? [];
-            d.testimonials.push({ name: "", role: "", text: "", rating: 5, avatar: "" });
-          })}
-        >
-          + Thêm đánh giá
-        </button>
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.testimonials = d.testimonials ?? []; d.testimonials.push({ name: "", role: "", text: "", rating: 5, avatar: "" }); })}>＋ Thêm mới</button>
       </div>
 
       <div className="card">
@@ -472,32 +641,27 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
           Giữ Ctrl (Windows) hoặc ⌘ (Mac) để chọn nhiều ảnh cùng lúc.
         </p>
       </div>
+      </>)}
 
+      {activeTab === "faq" && (<>
       <div className="card">
         <h2>Câu hỏi thường gặp (FAQ)</h2>
         {(c.faq ?? []).map((item: FaqItem, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div className="afield">
-              <label>Câu hỏi</label>
-              <input value={item.q} onChange={(e) => patch((d) => { d.faq[i].q = e.target.value; })} />
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Câu hỏi</label>
+                <input value={item.q} onChange={(e) => patch((d) => { d.faq[i].q = e.target.value; })} />
+              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.faq.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
             </div>
-            <div className="afield">
+            <div className="afield" style={{ marginTop: "0.6rem" }}>
               <label>Câu trả lời</label>
               <textarea value={item.a} onChange={(e) => patch((d) => { d.faq[i].a = e.target.value; })} />
             </div>
-            <button className="abtn" onClick={() => patch((d) => { d.faq.splice(i, 1); })}>Xóa câu hỏi này</button>
           </div>
         ))}
-        <button
-          className="abtn"
-          style={{ marginTop: "0.9rem" }}
-          onClick={() => patch((d) => {
-            d.faq = d.faq ?? [];
-            d.faq.push({ q: "", a: "" });
-          })}
-        >
-          + Thêm câu hỏi
-        </button>
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.faq = d.faq ?? []; d.faq.push({ q: "", a: "" }); })}>＋ Thêm mới</button>
       </div>
 
       <div className="card">
@@ -511,7 +675,9 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
           <textarea value={c.promo.desc} onChange={(e) => patch((d) => { d.promo.desc = e.target.value; })} />
         </div>
       </div>
+      </>)}
 
+      {activeTab === "contact" && (<>
       <div className="card">
         <h2>Liên hệ</h2>
         <div className="row2">
@@ -555,8 +721,10 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
           </div>
         </div>
       </div>
+      </>)}
 
       {/* ===== CHATBOT TƯ VẤN ===== */}
+      {activeTab === "chatbot" && (<>
       <div className="card">
         <h2>Chatbot tư vấn 🤖</h2>
         <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", fontWeight: 700, cursor: "pointer" }}>
@@ -587,24 +755,20 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
         <h3 style={{ fontSize: "0.95rem", margin: "0.5rem 0 0.8rem" }}>Chủ đề (nút bấm)</h3>
         {(c.chatbot.topics ?? []).map((t: ChatTopic, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
-            <div className="afield">
-              <label>Nhãn nút</label>
-              <input value={t.label} onChange={(e) => patch((d) => { d.chatbot.topics[i].label = e.target.value; })} />
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Nhãn nút</label>
+                <input value={t.label} onChange={(e) => patch((d) => { d.chatbot.topics[i].label = e.target.value; })} />
+              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.chatbot.topics.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
             </div>
-            <div className="afield">
+            <div className="afield" style={{ marginTop: "0.6rem" }}>
               <label>Câu trả lời</label>
               <textarea value={t.answer} onChange={(e) => patch((d) => { d.chatbot.topics[i].answer = e.target.value; })} />
             </div>
-            <button className="abtn" onClick={() => patch((d) => { d.chatbot.topics.splice(i, 1); })}>Xóa chủ đề này</button>
           </div>
         ))}
-        <button
-          className="abtn"
-          style={{ marginTop: "0.9rem" }}
-          onClick={() => patch((d) => { d.chatbot.topics = d.chatbot.topics ?? []; d.chatbot.topics.push({ label: "", answer: "" }); })}
-        >
-          + Thêm chủ đề
-        </button>
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.chatbot.topics = d.chatbot.topics ?? []; d.chatbot.topics.push({ label: "", answer: "" }); })}>＋ Thêm mới</button>
 
         <h3 style={{ fontSize: "0.95rem", margin: "1.4rem 0 0.8rem" }}>Thu thập thông tin (Lead)</h3>
         <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", cursor: "pointer" }}>
@@ -639,7 +803,10 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
         </div>
       </div>
 
+      </>)}
+
       {/* ===== SỰ KIỆN ===== */}
+      {activeTab === "events" && (<>
       <div className="card">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.6rem", marginBottom: "1rem" }}>
           <h2 style={{ margin: 0 }}>Sự kiện ({events.length})</h2>
@@ -768,6 +935,9 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
         )}
       </div>
 
+      </>)}
+
+      {activeTab === "leads" && (<>
       <div className="card">
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "0.6rem", marginBottom: "1rem" }}>
           <h2 style={{ margin: 0 }}>Khách đăng ký ({leads.length})</h2>
@@ -788,14 +958,36 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
             })}
           </div>
         )}
+        {leads.length > 0 && (
+          <div style={{ display: "flex", gap: "0.6rem", marginBottom: "0.8rem", flexWrap: "wrap" }}>
+            <input
+              placeholder="🔍 Tìm tên hoặc SĐT..."
+              value={leadSearch}
+              onChange={(e) => setLeadSearch(e.target.value)}
+              style={{ flex: 1, minWidth: 180, padding: "0.5rem 0.75rem", border: "1px solid #ddd", borderRadius: 9, fontSize: "0.9rem", fontFamily: "inherit", background: "#fbfaf7" }}
+            />
+            <select
+              value={leadFilter}
+              onChange={(e) => setLeadFilter(e.target.value)}
+              style={{ padding: "0.5rem 0.75rem", border: "1px solid #ddd", borderRadius: 9, fontSize: "0.9rem", fontFamily: "inherit", background: "#fbfaf7" }}
+            >
+              <option value="all">Tất cả ({leads.length})</option>
+              {STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>{s.label} ({leads.filter((l) => (l.status || "new") === s.value).length})</option>
+              ))}
+            </select>
+          </div>
+        )}
         {leads.length === 0 ? (
           <p className="muted">Chưa có ai đăng ký. Khi phụ huynh điền form, dữ liệu sẽ hiện ở đây.</p>
+        ) : filteredLeads.length === 0 ? (
+          <p className="muted">Không tìm thấy kết quả phù hợp.</p>
         ) : (
           <div>
             <div className="lead-row h">
               <span>Tên</span><span>SĐT</span><span>Tuổi</span><span>Nguồn</span><span>Trạng thái</span><span>Thời gian</span>
             </div>
-            {leads.map((l) => (
+            {filteredLeads.map((l) => (
               <div className="lead-row" key={l.id}>
                 <span>{l.name}</span>
                 <span>{l.phone}</span>
@@ -814,13 +1006,34 @@ export default function AdminEditor({ initial }: { initial: SiteContent }) {
           </div>
         )}
       </div>
+      </>)}
 
+      {CONTENT_TABS.includes(activeTab) && (
       <div className="save-bar">
-        <button className="abtn abtn-primary" onClick={save} disabled={saving}>
+        <Btn variant="primary" onClick={save} disabled={saving}>
           {saving ? "Đang lưu..." : "Lưu thay đổi"}
-        </button>
+        </Btn>
         {saved && <span className="saved-msg">✓ Đã lưu</span>}
+
+      </div>
+      )}
+      </div>
+
+      <div className="admin-preview">
+        <div className="admin-preview-header">
+          <span>👁 Xem trước</span>
+          <button className="abtn" style={{ padding: "0.3rem 0.8rem", fontSize: "0.8rem" }} onClick={() => { if (iframeRef.current) iframeRef.current.src = iframeRef.current.src; }}>↻ Tải lại</button>
+        </div>
+        <iframe ref={iframeRef} src="/" title="Preview" />
       </div>
     </div>
+  );
+}
+
+export default function AdminEditor({ initial }: { initial: SiteContent }) {
+  return (
+    <ToastProvider>
+      <AdminEditorInner initial={initial} />
+    </ToastProvider>
   );
 }
