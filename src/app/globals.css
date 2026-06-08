@@ -157,7 +157,7 @@ footer .logo .wm small { color: var(--green-lime); }
 footer .row { margin: 0.3rem 0; }
 
 /* ===== Call Center FAB (góc dưới phải) ===== */
-.cc-fab { position: fixed; right: 16px; bottom: 16px; z-index: 60; }
+.cc-fab { position: fixed; right: 16px; bottom: 16px; z-index: 9999; }
 
 /* Nút tròn chính */
 .cc-trigger {
@@ -234,7 +234,7 @@ footer .row { margin: 0.3rem 0; }
 .cc-facebook .cc-item-icon { background: #1877f2; }
 
 /* ===== Chatbot widget (góc dưới-trái, theme xanh) ===== */
-.cb-fab { position: fixed; left: 16px; bottom: 16px; z-index: 60; }
+.cb-fab { position: fixed; left: 16px; bottom: 16px; z-index: 9999; }
 .cb-trigger {
   width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
   background: linear-gradient(135deg, var(--green), var(--green-deep));
@@ -335,6 +335,7 @@ footer .row { margin: 0.3rem 0; }
 @media (max-width: 640px) {
   .mobile-cta { display: flex; }
   footer { padding-bottom: 4.5rem; }
+  .cc-fab { display: none; }
 }
 
 /* Testimonials */
