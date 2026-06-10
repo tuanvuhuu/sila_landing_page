@@ -6,12 +6,48 @@ import { sendLeadEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
+// Giới hạn tần suất đơn giản theo IP (chống spam/bot khi chạy ads).
+// Lưu trong bộ nhớ tiến trình — đủ chặn các đợt spam dồn dập.
+const RATE_LIMIT = 5; // số lần tối đa
+const RATE_WINDOW = 10 * 60 * 1000; // trong 10 phút
+const hits = new Map<string, number[]>();
+
+function isRateLimited(ip: string) {
+  const now = Date.now();
+  const arr = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW);
+  arr.push(now);
+  hits.set(ip, arr);
+  return arr.length > RATE_LIMIT;
+}
+
+function isValidVnPhone(raw: string) {
+  const digits = raw.replace(/[^\d+]/g, "");
+  return /^0\d{9}$/.test(digits) || /^\+?84\d{9}$/.test(digits);
+}
+
 // Phụ huynh điền form -> tạo lead mới (kèm nguồn quảng cáo)
 export async function POST(req: Request) {
   const body = await req.json();
-  const { name, phone, ageGroup, utm, eventId } = body;
+  const { name, phone, ageGroup, utm, eventId, company } = body;
+
+  // Honeypot: chỉ bot mới điền trường ẩn "company" -> giả vờ thành công, bỏ qua
+  if (company) {
+    return NextResponse.json({ ok: true });
+  }
+
   if (!name || !phone) {
     return NextResponse.json({ error: "Thiếu tên hoặc số điện thoại" }, { status: 400 });
+  }
+  if (String(name).length > 120 || String(phone).length > 30) {
+    return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
+  }
+  if (!isValidVnPhone(String(phone))) {
+    return NextResponse.json({ error: "Số điện thoại không hợp lệ" }, { status: 400 });
+  }
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: "Bạn thao tác quá nhanh, vui lòng thử lại sau ít phút." }, { status: 429 });
   }
 
   const u = utm || {};

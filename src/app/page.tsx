@@ -11,6 +11,9 @@ import SocialChatWidgets from "@/components/SocialChatWidgets";
 import ChatbotWidget from "@/components/ChatbotWidget";
 import ScrollReveal from "@/components/ScrollReveal";
 import Gallery from "@/components/Gallery";
+import JsonLd from "@/components/JsonLd";
+import CountdownTimer from "@/components/CountdownTimer";
+import ExitPopup from "@/components/ExitPopup";
 
 export const dynamic = "force-dynamic";
 
@@ -115,7 +118,7 @@ function CheckMini() {
 }
 
 function Avatar({ name, src }: { name: string; src: string }) {
-  if (src) return <img className="testi-avatar" src={src} alt={name} />;
+  if (src) return <Image className="testi-avatar" src={src} alt={name} width={46} height={46} />;
   const initials = name.split(" ").slice(-2).map((w) => w[0]?.toUpperCase() ?? "").join("");
   return <span className="testi-avatar testi-avatar-init">{initials}</span>;
 }
@@ -126,6 +129,7 @@ const FEATURE_ICONS = [SpeechIcon, GroupIcon, AppleIcon, CheckIcon];
 export default async function Home() {
   const c = await getContent();
   const tel = `tel:${c.contact.phone.replace(/\s/g, "")}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   // Sự kiện: sắp tới (tất cả đang bật) + đã diễn ra (lịch sử, tối đa 6)
   const now = new Date();
@@ -165,6 +169,7 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd content={c} siteUrl={siteUrl} />
       <EngagementTracker />
       <ScrollReveal />
 
@@ -361,7 +366,11 @@ export default async function Home() {
             <span className="badge-free">🎁 ƯU ĐÃI</span>
             <h2>{c.promo.title}</h2>
             <p>{c.promo.desc}</p>
-            <a href="#signup" className="btn btn-primary">Nhận ưu đãi ngay →</a>
+            <div className="offer-deadline">
+              <div className="offer-deadline-label">⏳ Ưu đãi kết thúc sau:</div>
+              <CountdownTimer />
+            </div>
+            <a href="#signup" className="btn btn-primary" style={{ marginTop: "1.4rem" }}>Nhận ưu đãi ngay →</a>
           </div>
         </div>
       </section>
@@ -461,6 +470,8 @@ export default async function Home() {
         messenger={c.contact.messenger}
         facebook={c.contact.facebook}
       />
+
+      <ExitPopup title={c.promo.title} desc={c.promo.desc} />
     </>
   );
 }

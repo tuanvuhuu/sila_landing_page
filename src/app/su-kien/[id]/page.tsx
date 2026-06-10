@@ -2,8 +2,10 @@ import { prisma } from "@/lib/db";
 import { getContent } from "@/lib/content";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ContactLink, ContactButtons } from "../../Contact";
 import LeadForm from "../../LeadForm";
+import Gallery from "@/components/Gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +56,14 @@ export default async function EventDetailPage({ params }: Props) {
           {/* Ảnh bìa */}
           {ev.image && (
             <div className="ev-detail-img">
-              <img src={ev.image} alt={ev.title} />
+              <Image
+                src={ev.image}
+                alt={ev.title}
+                fill
+                sizes="(max-width: 820px) 92vw, 780px"
+                style={{ objectFit: "cover" }}
+                priority
+              />
               {isPast && <span className="ev-badge-past">Đã diễn ra</span>}
             </div>
           )}
@@ -86,12 +95,8 @@ export default async function EventDetailPage({ params }: Props) {
               try { imgs = JSON.parse((ev as Record<string, unknown>).images as string ?? "[]"); } catch { imgs = []; }
               if (!imgs.length) return null;
               return (
-                <div className="ev-detail-gallery">
-                  {imgs.map((src, i) => (
-                    <div key={i} className="ev-detail-gallery-item">
-                      <img src={src} alt={`${ev.title} ảnh ${i + 1}`} />
-                    </div>
-                  ))}
+                <div className="ev-detail-gallery-wrap">
+                  <Gallery images={imgs} centerName={ev.title} />
                 </div>
               );
             })()}

@@ -20,10 +20,17 @@ export default function LeadForm({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [ageGroup, setAgeGroup] = useState(initialAgeGroup);
+  const [company, setCompany] = useState(""); // honeypot — bot điền, người thật không thấy
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [utm, setUtm] = useState<Utm>({});
   const startedRef = useRef(false);
+
+  // Kiểm tra số điện thoại Việt Nam (di động 0xxxxxxxxx hoặc +84xxxxxxxxx)
+  function isValidVnPhone(raw: string) {
+    const digits = raw.replace(/[^\d+]/g, "");
+    return /^0\d{9}$/.test(digits) || /^\+?84\d{9}$/.test(digits);
+  }
 
   useEffect(() => {
     setUtm(getPersistedUtm());
@@ -40,6 +47,10 @@ export default function LeadForm({
       setError("Vui lòng nhập tên và số điện thoại.");
       return;
     }
+    if (!isValidVnPhone(phone)) {
+      setError("Số điện thoại chưa đúng. Vui lòng nhập số di động Việt Nam (VD: 0901234567).");
+      return;
+    }
     setLoading(true);
     setError("");
     const eventId =
@@ -50,7 +61,7 @@ export default function LeadForm({
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, ageGroup, utm, eventId }),
+        body: JSON.stringify({ name, phone, ageGroup, utm, eventId, company }),
       });
       if (!res.ok) throw new Error();
       window.fbq?.("track", "Lead", { content_name: "Dang ky hoc thu" }, { eventID: eventId });
@@ -84,6 +95,17 @@ export default function LeadForm({
           </select>
         </div>
       )}
+      {/* Honeypot: ẩn với người dùng, chỉ bot tự điền */}
+      <input
+        type="text"
+        name="company"
+        value={company}
+        onChange={(e) => setCompany(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+      />
       {error && <p className="form-error">⚠️ {error}</p>}
       <button className="btn btn-primary" onClick={submit} disabled={loading}>
         {loading ? (

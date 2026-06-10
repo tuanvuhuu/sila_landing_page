@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 
 export type CarouselEvent = {
   id: number;
@@ -67,7 +68,13 @@ export default function EventCarousel({
         >
           {ev.image && (
             <div className="ev-img">
-              <img src={ev.image} alt={ev.title} />
+              <Image
+                src={ev.image}
+                alt={ev.title}
+                fill
+                sizes="(max-width: 768px) 85vw, 360px"
+                style={{ objectFit: "cover" }}
+              />
               {variant === "history" && <span className="ev-badge-past">Đã diễn ra</span>}
             </div>
           )}
