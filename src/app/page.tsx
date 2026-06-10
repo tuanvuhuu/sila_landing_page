@@ -18,6 +18,7 @@ import CountUp from "@/components/CountUp";
 import WaveDivider from "@/components/WaveDivider";
 import TestimonialSlider from "@/components/TestimonialSlider";
 import FeaturedEvent from "@/components/FeaturedEvent";
+import ScrollTopOnLoad from "@/components/ScrollTopOnLoad";
 
 export const dynamic = "force-dynamic";
 
@@ -170,6 +171,7 @@ export default async function Home() {
 
   return (
     <>
+      <ScrollTopOnLoad />
       <JsonLd content={c} siteUrl={siteUrl} />
       <EngagementTracker />
       <ScrollReveal />
