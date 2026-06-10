@@ -164,13 +164,13 @@ section { position: relative; }
 /* Lightbox thư viện ảnh */
 .lb { position: fixed; inset: 0; z-index: 10000; background: rgba(15, 18, 12, 0.92); display: grid; place-items: center; padding: 1rem; animation: lb-fade 0.2s ease; }
 @keyframes lb-fade { from { opacity: 0; } to { opacity: 1; } }
-.lb-stage { position: relative; width: min(92vw, 1100px); height: min(82vh, 820px); }
-.lb-close { position: absolute; top: 1rem; right: 1.2rem; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 1.2rem; cursor: pointer; transition: background 0.15s ease; }
+.lb-stage { position: relative; z-index: 1; width: min(92vw, 1100px); height: min(82vh, 820px); }
+.lb-close { position: absolute; z-index: 3; top: 1rem; right: 1.2rem; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 1.2rem; cursor: pointer; transition: background 0.15s ease; }
 .lb-close:hover { background: rgba(255, 255, 255, 0.28); }
-.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; transition: background 0.15s ease; }
+.lb-nav { position: absolute; z-index: 3; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; transition: background 0.15s ease; }
 .lb-nav:hover { background: rgba(255, 255, 255, 0.3); }
 .lb-prev { left: 1rem; } .lb-next { right: 1rem; }
-.lb-count { position: absolute; bottom: 1.1rem; left: 50%; transform: translateX(-50%); color: rgba(255, 255, 255, 0.85); font-weight: 700; font-size: 0.9rem; }
+.lb-count { position: absolute; z-index: 3; bottom: 1.1rem; left: 50%; transform: translateX(-50%); color: rgba(255, 255, 255, 0.85); font-weight: 700; font-size: 0.9rem; }
 @media (max-width: 640px) { .lb-nav { width: 42px; height: 42px; font-size: 1.6rem; } }
 
 .offer { padding: 2rem 0 4rem; }
