@@ -106,6 +106,22 @@ Dự án đã gắn sẵn công cụ để chạy và đo lường quảng cáo 
 Trang admin > "Khách đăng ký" giờ có cột **Trạng thái** (Mới / Đã gọi / Đã học thử /
 Đã ghi danh / Không quan tâm) — đây cũng chính là khâu chăm sóc trong vòng lặp vận hành.
 
+## Gắn domain riêng & SEO
+
+Sau khi deploy lên Vercel và mua domain, làm 3 bước:
+
+1. **Trỏ domain về Vercel:** Vercel > project > Settings > Domains > Add, nhập domain
+   (nên thêm cả `www`). Vercel hiện các bản ghi DNS cần tạo.
+2. **Cấu hình DNS** tại nhà cung cấp domain: domain gốc tạo bản ghi **A** trỏ IP Vercel
+   (`76.76.21.21`), `www` tạo **CNAME** trỏ `cname.vercel-dns.com`. Vercel tự cấp SSL (https).
+3. **Đặt biến môi trường** `NEXT_PUBLIC_SITE_URL` trên Vercel = domain thật
+   (vd `https://eslacademy.vn`), rồi **Redeploy**. Biến này dùng cho:
+   - Thẻ Open Graph (link đẹp khi share Facebook/Zalo) trong `src/app/layout.tsx`.
+   - `sitemap.xml` (`src/app/sitemap.ts`) và `robots.txt` (`src/app/robots.ts`).
+
+Kiểm tra: mở `https://<domain>/sitemap.xml`, `https://<domain>/robots.txt`, và dán link
+trang chủ vào **Facebook Sharing Debugger** để xem ảnh + tiêu đề hiển thị đúng chưa.
+
 ## Cơ sở dữ liệu cho production (quan trọng)
 
 SQLite chỉ dùng để chạy thử trên máy. Khi deploy lên Vercel (hoặc hosting serverless),
