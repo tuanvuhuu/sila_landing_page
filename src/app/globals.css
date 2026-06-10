@@ -215,7 +215,7 @@ section { position: relative; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Chọn độ tuổi dạng thẻ (thay select) */
-.age-pills { display: flex; gap: 0.5rem; }
+.age-pills { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 0.5rem; }
 .age-pill {
   flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
   padding: 0.7rem 0.4rem; border: 2px solid var(--line); border-radius: 14px; background: #fff;
