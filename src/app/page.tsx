@@ -14,6 +14,9 @@ import Gallery from "@/components/Gallery";
 import JsonLd from "@/components/JsonLd";
 import CountdownTimer from "@/components/CountdownTimer";
 import ExitPopup from "@/components/ExitPopup";
+import CountUp from "@/components/CountUp";
+import WaveDivider from "@/components/WaveDivider";
+import TestimonialSlider from "@/components/TestimonialSlider";
 
 export const dynamic = "force-dynamic";
 
@@ -95,19 +98,6 @@ function CheckIcon() {
   );
 }
 
-function Stars({ n }: { n: number }) {
-  const count = Math.min(5, Math.max(0, Math.round(n)));
-  return (
-    <span className="testi-stars" aria-label={`Đánh giá ${count} trên 5 sao`}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg key={i} viewBox="0 0 24 24" className={i < count ? "star on" : "star"} aria-hidden="true">
-          <path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.3 6.8 19l1-5.8L3.6 9.1l5.8-.8z" />
-        </svg>
-      ))}
-    </span>
-  );
-}
-
 function CheckMini() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -117,14 +107,18 @@ function CheckMini() {
   );
 }
 
-function Avatar({ name, src }: { name: string; src: string }) {
-  if (src) return <Image className="testi-avatar" src={src} alt={name} width={46} height={46} />;
-  const initials = name.split(" ").slice(-2).map((w) => w[0]?.toUpperCase() ?? "").join("");
-  return <span className="testi-avatar testi-avatar-init">{initials}</span>;
-}
-
 const PROGRAM_ICONS = [CapIcon, BookIcon, StarIcon];
 const FEATURE_ICONS = [SpeechIcon, GroupIcon, AppleIcon, CheckIcon];
+
+const CERTS = [
+  "🏆 Cambridge English",
+  "🎓 Chứng chỉ TESOL",
+  "🎓 Chứng chỉ CELTA",
+  "🧩 Phương pháp Immersive",
+  "👶 Lớp ≤ 10 bé",
+  "🌏 Giáo viên bản ngữ",
+  "⭐ 98% phụ huynh hài lòng",
+];
 
 export default async function Home() {
   const c = await getContent();
@@ -187,10 +181,13 @@ export default async function Home() {
       </header>
 
       <section className="hero">
+        <span className="hero-blob hb1" aria-hidden="true" />
+        <span className="hero-blob hb2" aria-hidden="true" />
+        <span className="hero-blob hb3" aria-hidden="true" />
         <div className="wrap hero-grid">
           <div>
             <span className="eyebrow">{c.hero.eyebrow}</span>
-            <h1>{c.hero.title}</h1>
+            <h1 className="hero-title-gradient">{c.hero.title}</h1>
             <p className="lead">{c.hero.subtitle}</p>
             <div className="hero-cta">
               <a href="#signup" className="btn btn-primary">🎁 {c.hero.ctaText}</a>
@@ -225,12 +222,20 @@ export default async function Home() {
         <div className="wrap stat-grid">
           {c.stats.map((s, i) => (
             <div className="stat reveal" key={i}>
-              <div className="num">{s.num}</div>
+              <div className="num"><CountUp value={s.num} /></div>
               <div className="lbl">{s.lbl}</div>
             </div>
           ))}
         </div>
       </section>
+
+      <div className="cert-marquee" aria-label="Chứng nhận và phương pháp">
+        <div className="cert-track">
+          {CERTS.concat(CERTS).map((label, i) => (
+            <span className="cert-pill" key={i}>{label}</span>
+          ))}
+        </div>
+      </div>
 
       <section className="programs" id="programs">
         <div className="wrap">
@@ -243,6 +248,7 @@ export default async function Home() {
               const Icon = PROGRAM_ICONS[i % PROGRAM_ICONS.length];
               return (
                 <div className="prog reveal" key={i}>
+                  <span className="prog-step">{i + 1}</span>
                   <div className="pico"><Icon /></div>
                   <span className="age">{p.age}</span>
                   <h3>{p.title}</h3>
@@ -253,6 +259,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <WaveDivider color="var(--green-soft)" />
 
       <section className="why" id="why">
         <div className="wrap">
@@ -284,22 +292,7 @@ export default async function Home() {
               <span className="kicker">Phụ huynh nói gì</span>
               <h2>Hàng nghìn gia đình đã tin tưởng 💬</h2>
             </div>
-            <div className="testi-grid">
-              {c.testimonials.map((t, i) => (
-                <div className="testi-card reveal" key={i}>
-                  <span className="testi-quote">&ldquo;</span>
-                  <Stars n={t.rating} />
-                  <p className="testi-text">{t.text}</p>
-                  <div className="testi-author">
-                    <Avatar name={t.name} src={t.avatar} />
-                    <div>
-                      <div className="testi-name">{t.name}</div>
-                      <div className="testi-role">{t.role}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <TestimonialSlider items={c.testimonials} />
           </div>
         </section>
       )}
@@ -384,6 +377,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <WaveDivider color="#1b2a4a" />
 
       <footer>
         {/* Upper: Logo + tagline */}
