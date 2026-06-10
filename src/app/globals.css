@@ -781,6 +781,11 @@ footer .logo .wm small { color: #7dd3fc; }
   .fe-media { min-height: 200px; }
   .fe-body { padding: 1.5rem; }
 }
+/* Mobile: 2 nút trong banner sự kiện cùng một hàng, chia đôi đều & bằng chiều cao */
+@media (max-width: 560px) {
+  .fe-cta { flex-wrap: nowrap; align-items: stretch; gap: 0.6rem; }
+  .fe-cta .btn { flex: 1 1 0; min-width: 0; justify-content: center; text-align: center; white-space: nowrap; font-size: 0.82rem; padding: 0.72rem 0.5rem; border-radius: 16px; }
+}
 
 /* Ô lịch + nhãn trên card sự kiện */
 .ev-cal {
