@@ -213,6 +213,19 @@ section { position: relative; }
 .form-note { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 0.85rem; }
 .btn-spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Chọn độ tuổi dạng thẻ (thay select) */
+.age-pills { display: flex; gap: 0.5rem; }
+.age-pill {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+  padding: 0.7rem 0.4rem; border: 2px solid var(--line); border-radius: 14px; background: #fff;
+  font-family: var(--font-quicksand); font-weight: 700; font-size: 0.88rem; color: var(--ink);
+  cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+  white-space: nowrap;
+}
+.age-pill .age-emo { font-size: 1.4rem; line-height: 1; }
+.age-pill:hover { border-color: var(--green-lime); transform: translateY(-2px); }
+.age-pill.active { border-color: var(--green); background: var(--green-soft); color: var(--green-deep); box-shadow: 0 0 0 3px rgba(128, 184, 72, 0.18); }
 .thanks { text-align: center; padding: 1.5rem 0; }
 .thanks .emoji { font-size: 3.5rem; }
 
