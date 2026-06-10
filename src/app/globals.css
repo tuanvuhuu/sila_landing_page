@@ -787,6 +787,12 @@ footer .logo .wm small { color: #7dd3fc; }
   .fe-cta .btn { flex: 1 1 0; min-width: 0; justify-content: center; text-align: center; white-space: nowrap; font-size: 0.82rem; padding: 0.72rem 0.5rem; border-radius: 16px; }
 }
 
+/* Cặp nút CTA cùng hàng: cao bằng nhau & đáy thẳng hàng
+   (bỏ bóng nổi 3D 7px của nút cam vì nút viền không có, gây cảm giác lệch chiều cao) */
+.hero-cta .btn, .fe-cta .btn { align-self: stretch; }
+.hero-cta .btn-primary, .fe-cta .btn-primary { box-shadow: var(--shadow-sm); }
+.hero-cta .btn-primary:active, .fe-cta .btn-primary:active { transform: translateY(1px); }
+
 /* Ô lịch + nhãn trên card sự kiện */
 .ev-cal {
   position: absolute; top: 0.7rem; left: 0.7rem; background: #fff; border-radius: 12px;
