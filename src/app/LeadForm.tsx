@@ -84,10 +84,17 @@ export default function LeadForm({
           </select>
         </div>
       )}
-      {error && <p style={{ color: "#e24f4f", fontWeight: 700, marginBottom: "0.6rem" }}>{error}</p>}
+      {error && <p className="form-error">⚠️ {error}</p>}
       <button className="btn btn-primary" onClick={submit} disabled={loading}>
-        {loading ? "Đang gửi..." : `🚀 ${ctaText}`}
+        {loading ? (
+          <>
+            <span className="btn-spinner" aria-hidden="true" /> Đang gửi...
+          </>
+        ) : (
+          `🚀 ${ctaText}`
+        )}
       </button>
+      <p className="form-note">🔒 Thông tin được bảo mật — trung tâm sẽ gọi lại trong 24h.</p>
     </div>
   );
 }

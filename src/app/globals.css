@@ -17,6 +17,19 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
+/* ===== Hiệu ứng hiện dần khi cuộn (ScrollReveal) ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s cubic-bezier(0.16, 0.84, 0.44, 1),
+    transform 0.7s cubic-bezier(0.16, 0.84, 0.44, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
 body {
   font-family: "Nunito", system-ui, sans-serif;
   background: var(--surface);
@@ -71,7 +84,12 @@ section { position: relative; }
 .hero h1 .o { color: var(--orange); } .hero h1 .g { color: var(--green); }
 .hero p.lead { font-size: 1.15rem; color: var(--muted); margin: 1.1rem 0 1.8rem; max-width: 38ch; }
 .hero-cta { display: flex; gap: 0.9rem; flex-wrap: wrap; }
+.hero-trust { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1.3rem; margin-top: 1.4rem; }
+.hero-trust li { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.88rem; color: var(--ink); }
+.hero-trust svg { width: 18px; height: 18px; flex-shrink: 0; }
+@media (max-width: 860px) { .hero-trust { justify-content: center; } }
 .hero-art { position: relative; display: grid; place-items: center; }
+.badge-ring-img { position: relative; width: 100%; height: 100%; }
 .badge-ring {
   width: min(340px, 80vw); aspect-ratio: 1; border-radius: 50%; border: none;
   background: radial-gradient(circle at 38% 32%, #fff 50%, var(--green-soft) 100%);
@@ -129,8 +147,23 @@ section { position: relative; }
 
 .gallery { padding: 3rem 0; }
 .gal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-.gal-item { aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); background: var(--green-soft); }
-.gal-item img { width: 100%; height: 100%; object-fit: cover; }
+.gal-item { position: relative; aspect-ratio: 4 / 3; border: none; padding: 0; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); background: var(--green-soft); cursor: pointer; display: block; }
+.gal-item img { object-fit: cover; transition: transform 0.4s ease; }
+.gal-item:hover img { transform: scale(1.06); }
+.gal-item::after { content: "🔍"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.4rem; background: rgba(57, 64, 44, 0.32); opacity: 0; transition: opacity 0.2s ease; }
+.gal-item:hover::after, .gal-item:focus-visible::after { opacity: 1; }
+
+/* Lightbox thư viện ảnh */
+.lb { position: fixed; inset: 0; z-index: 10000; background: rgba(15, 18, 12, 0.92); display: grid; place-items: center; padding: 1rem; animation: lb-fade 0.2s ease; }
+@keyframes lb-fade { from { opacity: 0; } to { opacity: 1; } }
+.lb-stage { position: relative; width: min(92vw, 1100px); height: min(82vh, 820px); }
+.lb-close { position: absolute; top: 1rem; right: 1.2rem; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 1.2rem; cursor: pointer; transition: background 0.15s ease; }
+.lb-close:hover { background: rgba(255, 255, 255, 0.28); }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; transition: background 0.15s ease; }
+.lb-nav:hover { background: rgba(255, 255, 255, 0.3); }
+.lb-prev { left: 1rem; } .lb-next { right: 1rem; }
+.lb-count { position: absolute; bottom: 1.1rem; left: 50%; transform: translateX(-50%); color: rgba(255, 255, 255, 0.85); font-weight: 700; font-size: 0.9rem; }
+@media (max-width: 640px) { .lb-nav { width: 42px; height: 42px; font-size: 1.6rem; } }
 
 .offer { padding: 2rem 0 4rem; }
 .offer-card { background: linear-gradient(135deg, var(--green), var(--green-lime)); border-radius: 28px; padding: 2.6rem; color: #fff; text-align: center; box-shadow: var(--shadow); }
@@ -144,9 +177,13 @@ section { position: relative; }
 .form-card p.sub { color: var(--muted); margin-bottom: 1.4rem; }
 .field { margin-bottom: 1rem; }
 .field label { display: block; font-weight: 700; margin-bottom: 0.35rem; font-size: 0.95rem; }
-.field input, .field select { width: 100%; padding: 0.8rem 1rem; border: 2px solid var(--line); border-radius: 13px; font-family: inherit; font-size: 1rem; background: #fff; }
-.field input:focus, .field select:focus { outline: none; border-color: var(--green); }
+.field input, .field select { width: 100%; padding: 0.8rem 1rem; border: 2px solid var(--line); border-radius: 13px; font-family: inherit; font-size: 1rem; background: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(128, 184, 72, 0.18); }
 .form-card .btn-primary { width: 100%; justify-content: center; margin-top: 0.4rem; }
+.form-error { color: #d64545; font-weight: 700; margin-bottom: 0.6rem; font-size: 0.92rem; }
+.form-note { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 0.85rem; }
+.btn-spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .thanks { text-align: center; padding: 1.5rem 0; }
 .thanks .emoji { font-size: 3.5rem; }
 
@@ -484,7 +521,9 @@ footer .logo .wm small { color: #7dd3fc; }
 .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.4rem; }
 .testi-card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 1.8rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
 .testi-quote { font-size: 2.8rem; line-height: 1; color: var(--green-lime); margin-bottom: 0.4rem; }
-.testi-stars { color: var(--orange); font-size: 1.05rem; letter-spacing: 2px; margin-bottom: 0.8rem; display: block; }
+.testi-stars { display: inline-flex; gap: 3px; margin-bottom: 0.8rem; }
+.testi-stars .star { width: 18px; height: 18px; fill: var(--line); }
+.testi-stars .star.on { fill: var(--orange); }
 .testi-text { color: var(--muted); font-size: 0.97rem; line-height: 1.65; flex: 1; margin-bottom: 1.2rem; font-style: italic; }
 .testi-author { display: flex; align-items: center; gap: 0.75rem; }
 .testi-avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
