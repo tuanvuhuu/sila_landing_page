@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getContent } from "@/lib/content";
 import { prisma } from "@/lib/db";
 import LeadForm from "./LeadForm";
@@ -8,6 +9,14 @@ import FaqSection from "./FaqSection";
 import EventCarousel from "./EventCarousel";
 import SocialChatWidgets from "@/components/SocialChatWidgets";
 import ChatbotWidget from "@/components/ChatbotWidget";
+import ScrollReveal from "@/components/ScrollReveal";
+import Gallery from "@/components/Gallery";
+import JsonLd from "@/components/JsonLd";
+import CountdownTimer from "@/components/CountdownTimer";
+import ExitPopup from "@/components/ExitPopup";
+import CountUp from "@/components/CountUp";
+import WaveDivider from "@/components/WaveDivider";
+import TestimonialSlider from "@/components/TestimonialSlider";
 
 export const dynamic = "force-dynamic";
 
@@ -89,27 +98,32 @@ function CheckIcon() {
   );
 }
 
-function Stars({ n }: { n: number }) {
-  const count = Math.min(5, Math.max(0, Math.round(n)));
+function CheckMini() {
   return (
-    <span className="testi-stars">
-      {"★".repeat(count)}{"☆".repeat(5 - count)}
-    </span>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" fill="var(--green)" />
+      <path d="M7.5 12.3l3 3 6-6.3" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
-}
-
-function Avatar({ name, src }: { name: string; src: string }) {
-  if (src) return <img className="testi-avatar" src={src} alt={name} />;
-  const initials = name.split(" ").slice(-2).map((w) => w[0]?.toUpperCase() ?? "").join("");
-  return <span className="testi-avatar testi-avatar-init">{initials}</span>;
 }
 
 const PROGRAM_ICONS = [CapIcon, BookIcon, StarIcon];
 const FEATURE_ICONS = [SpeechIcon, GroupIcon, AppleIcon, CheckIcon];
 
+const CERTS = [
+  "🏆 Cambridge English",
+  "🎓 Chứng chỉ TESOL",
+  "🎓 Chứng chỉ CELTA",
+  "🧩 Phương pháp Immersive",
+  "👶 Lớp ≤ 10 bé",
+  "🌏 Giáo viên bản ngữ",
+  "⭐ 98% phụ huynh hài lòng",
+];
+
 export default async function Home() {
   const c = await getContent();
   const tel = `tel:${c.contact.phone.replace(/\s/g, "")}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   // Sự kiện: sắp tới (tất cả đang bật) + đã diễn ra (lịch sử, tối đa 6)
   const now = new Date();
@@ -149,7 +163,9 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd content={c} siteUrl={siteUrl} />
       <EngagementTracker />
+      <ScrollReveal />
 
       <header className="nav">
         <div className="wrap nav-in">
@@ -165,19 +181,36 @@ export default async function Home() {
       </header>
 
       <section className="hero">
+        <span className="hero-blob hb1" aria-hidden="true" />
+        <span className="hero-blob hb2" aria-hidden="true" />
+        <span className="hero-blob hb3" aria-hidden="true" />
         <div className="wrap hero-grid">
           <div>
             <span className="eyebrow">{c.hero.eyebrow}</span>
-            <h1>{c.hero.title}</h1>
+            <h1 className="hero-title-gradient">{c.hero.title}</h1>
             <p className="lead">{c.hero.subtitle}</p>
             <div className="hero-cta">
               <a href="#signup" className="btn btn-primary">🎁 {c.hero.ctaText}</a>
               <a href="#programs" className="btn btn-ghost">Xem chương trình</a>
             </div>
+            <ul className="hero-trust">
+              <li><CheckMini /> Giáo viên bản ngữ &amp; TESOL/CELTA</li>
+              <li><CheckMini /> Lộ trình chuẩn Cambridge</li>
+              <li><CheckMini /> Lớp nhỏ ≤ 10 bé</li>
+            </ul>
           </div>
           <div className="hero-art">
             <div className="badge-ring">
-              <img src={c.hero.image || "/logo.png"} alt={c.centerName} />
+              <div className="badge-ring-img">
+                <Image
+                  src={c.hero.image || "/logo.png"}
+                  alt={c.centerName}
+                  fill
+                  sizes="(max-width: 860px) 80vw, 340px"
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </div>
             </div>
             <span className="chip c1"><span className="d" style={{ background: "#80B848" }} /> Giáo viên bản ngữ</span>
             <span className="chip c2"><span className="d" style={{ background: "#F58220" }} /> Lớp ≤ 10 bé</span>
@@ -188,13 +221,21 @@ export default async function Home() {
       <section className="stats">
         <div className="wrap stat-grid">
           {c.stats.map((s, i) => (
-            <div className="stat" key={i}>
-              <div className="num">{s.num}</div>
+            <div className="stat reveal" key={i}>
+              <div className="num"><CountUp value={s.num} /></div>
               <div className="lbl">{s.lbl}</div>
             </div>
           ))}
         </div>
       </section>
+
+      <div className="cert-marquee" aria-label="Chứng nhận và phương pháp">
+        <div className="cert-track">
+          {CERTS.concat(CERTS).map((label, i) => (
+            <span className="cert-pill" key={i}>{label}</span>
+          ))}
+        </div>
+      </div>
 
       <section className="programs" id="programs">
         <div className="wrap">
@@ -206,7 +247,8 @@ export default async function Home() {
             {c.programs.map((p, i) => {
               const Icon = PROGRAM_ICONS[i % PROGRAM_ICONS.length];
               return (
-                <div className="prog" key={i}>
+                <div className="prog reveal" key={i}>
+                  <span className="prog-step">{i + 1}</span>
                   <div className="pico"><Icon /></div>
                   <span className="age">{p.age}</span>
                   <h3>{p.title}</h3>
@@ -218,6 +260,8 @@ export default async function Home() {
         </div>
       </section>
 
+      <WaveDivider color="var(--green-soft)" />
+
       <section className="why" id="why">
         <div className="wrap">
           <div className="head">
@@ -228,7 +272,7 @@ export default async function Home() {
             {c.features.map((f, i) => {
               const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length];
               return (
-                <div className="feature" key={i}>
+                <div className="feature reveal" key={i}>
                   <span className="fico"><Icon /></span>
                   <div>
                     <h4>{f.title}</h4>
@@ -248,22 +292,7 @@ export default async function Home() {
               <span className="kicker">Phụ huynh nói gì</span>
               <h2>Hàng nghìn gia đình đã tin tưởng 💬</h2>
             </div>
-            <div className="testi-grid">
-              {c.testimonials.map((t, i) => (
-                <div className="testi-card" key={i}>
-                  <span className="testi-quote">&ldquo;</span>
-                  <Stars n={t.rating} />
-                  <p className="testi-text">{t.text}</p>
-                  <div className="testi-author">
-                    <Avatar name={t.name} src={t.avatar} />
-                    <div>
-                      <div className="testi-name">{t.name}</div>
-                      <div className="testi-role">{t.role}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <TestimonialSlider items={c.testimonials} />
           </div>
         </section>
       )}
@@ -305,13 +334,7 @@ export default async function Home() {
               <span className="kicker">Không gian học tập</span>
               <h2>Một ngày ở {c.centerName} 📸</h2>
             </div>
-            <div className="gal-grid">
-              {c.gallery.map((src, i) => (
-                <div className="gal-item" key={i}>
-                  <img src={src} alt={`Ảnh lớp học ${i + 1}`} />
-                </div>
-              ))}
-            </div>
+            <Gallery images={c.gallery} centerName={c.centerName} />
           </div>
         </section>
       )}
@@ -332,24 +355,30 @@ export default async function Home() {
 
       <section className="offer">
         <div className="wrap">
-          <div className="offer-card">
+          <div className="offer-card reveal">
             <span className="badge-free">🎁 ƯU ĐÃI</span>
             <h2>{c.promo.title}</h2>
             <p>{c.promo.desc}</p>
-            <a href="#signup" className="btn btn-primary">Nhận ưu đãi ngay →</a>
+            <div className="offer-deadline">
+              <div className="offer-deadline-label">⏳ Ưu đãi kết thúc sau:</div>
+              <CountdownTimer />
+            </div>
+            <a href="#signup" className="btn btn-primary" style={{ marginTop: "1.4rem" }}>Nhận ưu đãi ngay →</a>
           </div>
         </div>
       </section>
 
       <section className="signup" id="signup">
         <div className="wrap">
-          <div className="form-card">
+          <div className="form-card reveal">
             <h2>Đăng ký học thử miễn phí 🎈</h2>
             <p className="sub">Để lại thông tin, trung tâm sẽ gọi lại để xếp lịch học thử cho bé.</p>
             <LeadForm ctaText={c.hero.ctaText} />
           </div>
         </div>
       </section>
+
+      <WaveDivider color="#1b2a4a" />
 
       <footer>
         {/* Upper: Logo + tagline */}
@@ -436,6 +465,8 @@ export default async function Home() {
         messenger={c.contact.messenger}
         facebook={c.contact.facebook}
       />
+
+      <ExitPopup title={c.promo.title} desc={c.promo.desc} />
     </>
   );
 }

@@ -43,7 +43,7 @@ export const defaultContent: SiteContent = {
     title: "Cho bé yêu tiếng Anh ngay từ nhỏ",
     subtitle:
       "Chương trình English as a Second Language cho bé 3–10 tuổi: học qua trò chơi, bài hát cùng giáo viên bản ngữ. Lớp nhỏ, chăm sóc từng bé.",
-    ctaText: "Đăng ký học thử miễn phí",
+    ctaText: "Đăng ký học thử",
     image: "",
     eyebrow: "🎓 Đang nhận học viên kỳ mới",
   },
