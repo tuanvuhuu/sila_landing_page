@@ -7,6 +7,12 @@ import { fireTikTokEvent } from "@/components/TikTokPixel";
 
 type Utm = Record<string, string>;
 
+const AGE_OPTIONS = [
+  { value: "3–4 tuổi", emoji: "🧸" },
+  { value: "5–7 tuổi", emoji: "✏️" },
+  { value: "8–10 tuổi", emoji: "🎒" },
+];
+
 export default function LeadForm({
   ctaText,
   initialAgeGroup = "",
@@ -87,12 +93,23 @@ export default function LeadForm({
       {!hideAgeSelect && (
         <div className="field">
           <label>Độ tuổi của bé</label>
-          <select value={ageGroup} onFocus={onStart} onChange={(e) => setAgeGroup(e.target.value)}>
-            <option value="">— Chọn độ tuổi —</option>
-            <option>3–4 tuổi</option>
-            <option>5–7 tuổi</option>
-            <option>8–10 tuổi</option>
-          </select>
+          <div className="age-pills" role="group" aria-label="Độ tuổi của bé">
+            {AGE_OPTIONS.map((opt) => (
+              <button
+                type="button"
+                key={opt.value}
+                className={`age-pill${ageGroup === opt.value ? " active" : ""}`}
+                aria-pressed={ageGroup === opt.value}
+                onClick={() => {
+                  onStart();
+                  setAgeGroup(ageGroup === opt.value ? "" : opt.value);
+                }}
+              >
+                <span className="age-emo">{opt.emoji}</span>
+                <span>{opt.value}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
       {/* Honeypot: ẩn với người dùng, chỉ bot tự điền */}
