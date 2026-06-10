@@ -38,7 +38,7 @@ export default function OpengraphImage() {
             borderRadius: 999,
           }}
         >
-          Free trial class · Ages 3 to 10
+          Free trial class · Ages 3 to 15
         </div>
       </div>
     ),

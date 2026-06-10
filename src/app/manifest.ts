@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "ESL Academy — English as a Second Language",
     short_name: "ESL Academy",
-    description: "Trung tâm tiếng Anh cho bé 3–10 tuổi. Đăng ký học thử miễn phí.",
+    description: "Trung tâm tiếng Anh cho bé 3–15 tuổi. Đăng ký học thử miễn phí.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

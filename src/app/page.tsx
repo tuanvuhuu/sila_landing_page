@@ -25,7 +25,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
   return {
-    title: `${c.centerName} — Học tiếng Anh cho bé 3–10 tuổi`,
+    title: `${c.centerName} — Học tiếng Anh cho bé 3–15 tuổi`,
     description: c.hero.subtitle,
     openGraph: {
       title: `${c.centerName} — ${c.hero.title}`,
@@ -402,7 +402,7 @@ export default async function Home() {
               <img src="/logo.png" alt={c.centerName} style={{ background: "#fff", borderRadius: "50%", padding: 3 }} />
               <span className="wm">{c.centerName}<small>English as a Second Language</small></span>
             </span>
-            <p className="f-tagline">Chương trình tiếng Anh chuẩn quốc tế cho trẻ 3–10 tuổi.<br/>Nền tảng vững chắc — bé tự tin giao tiếp toàn cầu.</p>
+            <p className="f-tagline">Chương trình tiếng Anh chuẩn quốc tế cho trẻ 3–15 tuổi.<br/>Nền tảng vững chắc — bé tự tin giao tiếp toàn cầu.</p>
             <div className="f-socials">
               {c.contact.facebook && <a href={c.contact.facebook} target="_blank" rel="noreferrer" className="f-soc" aria-label="Facebook"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg></a>}
               {c.contact.zalo && <a href={c.contact.zalo.startsWith("http") ? c.contact.zalo : `https://zalo.me/${c.contact.zalo.replace(/\s/g, "")}`} target="_blank" rel="noreferrer" className="f-soc" aria-label="Zalo">💬</a>}
@@ -416,7 +416,7 @@ export default async function Home() {
           <div className="wrap f-cols">
             <div className="f-col">
               <h5 className="f-label">Về chúng tôi</h5>
-              <p>ESL Academy đồng hành cùng phụ huynh xây dựng nền tiếng Anh vững chắc cho trẻ từ lứa tuổi mầm non đến tiểu học, với phương pháp immersive và giáo viên bản ngữ.</p>
+              <p>ESL Academy đồng hành cùng phụ huynh xây dựng nền tiếng Anh vững chắc cho trẻ từ mầm non đến trung học cơ sở, với phương pháp immersive và giáo viên bản ngữ.</p>
             </div>
             {c.branches.length > 0 && (
               <div className="f-col">
