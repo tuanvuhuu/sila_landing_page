@@ -11,6 +11,7 @@ const AGE_OPTIONS = [
   { value: "3–4 tuổi", emoji: "🧸" },
   { value: "5–7 tuổi", emoji: "✏️" },
   { value: "8–10 tuổi", emoji: "🎒" },
+  { value: "Trên 10 tuổi", emoji: "🎓" },
 ];
 
 export default function LeadForm({
