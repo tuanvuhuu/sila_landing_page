@@ -22,7 +22,7 @@ const nunito = Nunito({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const siteName = "ESL Academy";
 const title = "ESL Academy — English as a Second Language";
-const description = "Trung tâm tiếng Anh cho bé 3–10 tuổi. Đăng ký học thử miễn phí.";
+const description = "Trung tâm tiếng Anh cho bé 3–15 tuổi. Đăng ký học thử miễn phí.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
