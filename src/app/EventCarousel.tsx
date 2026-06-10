@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 export type CarouselEvent = {
@@ -9,10 +9,19 @@ export type CarouselEvent = {
   description?: string;
   image?: string;
   dateLabel: string;
+  dateISO?: string;
   location?: string;
   ctaText?: string;
   ctaLink?: string;
 };
+
+const MONTHS_SHORT = ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"];
+
+function soonLabel(days: number) {
+  if (days <= 0) return "Hôm nay";
+  if (days === 1) return "Ngày mai";
+  return `Còn ${days} ngày`;
+}
 
 export default function EventCarousel({
   events,
@@ -22,6 +31,9 @@ export default function EventCarousel({
   variant?: "full" | "history";
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  // "Còn X ngày" tính ở client để tránh lệch hydration
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -57,7 +69,10 @@ export default function EventCarousel({
 
   return (
     <div className="ev-carousel" ref={trackRef}>
-      {events.map((ev) => (
+      {events.map((ev) => {
+        const d = ev.dateISO ? new Date(ev.dateISO) : null;
+        const daysLeft = d ? Math.ceil((d.getTime() - Date.now()) / 86400000) : null;
+        return (
         <a
           href={`/su-kien/${ev.id}`}
           className={`ev-card-link ev-slide`}
@@ -75,7 +90,19 @@ export default function EventCarousel({
                 sizes="(max-width: 768px) 85vw, 360px"
                 style={{ objectFit: "cover" }}
               />
-              {variant === "history" && <span className="ev-badge-past">Đã diễn ra</span>}
+              {d && (
+                <span className="ev-cal">
+                  <strong>{d.getDate()}</strong>
+                  <span>{MONTHS_SHORT[d.getMonth()]}</span>
+                </span>
+              )}
+              {variant === "history" ? (
+                <span className="ev-badge-past">Đã diễn ra</span>
+              ) : (
+                mounted && daysLeft !== null && daysLeft >= 0 && (
+                  <span className="ev-soon">{soonLabel(daysLeft)}</span>
+                )
+              )}
             </div>
           )}
           <div className="ev-body">
@@ -93,7 +120,8 @@ export default function EventCarousel({
           </div>
         </div>
         </a>
-      ))}
+        );
+      })}
     </div>
   );
 }
