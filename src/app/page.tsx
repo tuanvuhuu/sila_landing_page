@@ -19,6 +19,7 @@ import WaveDivider from "@/components/WaveDivider";
 import TestimonialSlider from "@/components/TestimonialSlider";
 import FeaturedEvent from "@/components/FeaturedEvent";
 import ScrollTopOnLoad from "@/components/ScrollTopOnLoad";
+import CardSlider from "@/components/CardSlider";
 
 export const dynamic = "force-dynamic";
 
@@ -252,11 +253,11 @@ export default async function Home() {
             <span className="kicker">Chương trình học</span>
             <h2>Lộ trình theo từng độ tuổi</h2>
           </div>
-          <div className="prog-grid">
+          <CardSlider className="prog-slider" autoMs={5000}>
             {c.programs.map((p, i) => {
               const Icon = PROGRAM_ICONS[i % PROGRAM_ICONS.length];
               return (
-                <div className="prog reveal" key={i}>
+                <div className="prog" key={i}>
                   <span className="prog-step">{i + 1}</span>
                   <div className="pico"><Icon /></div>
                   <span className="age">{p.age}</span>
@@ -265,7 +266,7 @@ export default async function Home() {
                 </div>
               );
             })}
-          </div>
+          </CardSlider>
         </div>
       </section>
 

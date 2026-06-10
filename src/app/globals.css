@@ -145,6 +145,15 @@ section { position: relative; }
 .prog p { color: var(--muted); }
 @media (max-width: 760px) { .prog-grid { grid-template-columns: 1fr; } }
 
+/* Lộ trình độ tuổi dạng slider vuốt ngang (giống phần đánh giá) */
+.card-slider {
+  display: flex; gap: 1.4rem; overflow-x: auto; scroll-snap-type: x mandatory;
+  scroll-behavior: smooth; padding: 1.2rem 0.2rem 1rem; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.card-slider::-webkit-scrollbar { display: none; }
+.prog-slider > .prog { flex: 0 0 auto; width: clamp(240px, 72%, 300px); scroll-snap-align: start; }
+
 .why { padding: 3rem 0; background: linear-gradient(180deg, transparent, var(--green-soft) 30%, var(--green-soft) 70%, transparent); }
 .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
 .feature { display: flex; gap: 1rem; background: #fff; border-radius: 18px; padding: 1.4rem; box-shadow: var(--shadow-sm); }
