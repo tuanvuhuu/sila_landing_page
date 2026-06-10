@@ -17,6 +17,7 @@ import ExitPopup from "@/components/ExitPopup";
 import CountUp from "@/components/CountUp";
 import WaveDivider from "@/components/WaveDivider";
 import TestimonialSlider from "@/components/TestimonialSlider";
+import FeaturedEvent from "@/components/FeaturedEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -148,6 +149,7 @@ export default async function Home() {
     description: ev.description,
     image: ev.image,
     dateLabel: fmtEventDate(ev.date),
+    dateISO: ev.date.toISOString(),
     location: ev.location,
     ctaText: ev.ctaText,
     ctaLink: ev.ctaLink,
@@ -158,8 +160,13 @@ export default async function Home() {
     title: ev.title,
     image: ev.image,
     dateLabel: fmtEventDate(ev.date),
+    dateISO: ev.date.toISOString(),
     location: ev.location,
   }));
+
+  // Sự kiện nổi bật = sự kiện sắp tới gần nhất; còn lại đưa vào carousel
+  const featuredEvent = upcomingCards[0];
+  const restUpcoming = upcomingCards.slice(1);
 
   return (
     <>
@@ -297,14 +304,19 @@ export default async function Home() {
         </section>
       )}
 
-      {upcomingCards.length > 0 && (
-        <section className="events-section" id="events">
+      {featuredEvent && (
+        <section className="events-section events-highlight" id="events">
+          <span className="ev-deco ev-deco-1" aria-hidden="true">🎈</span>
+          <span className="ev-deco ev-deco-2" aria-hidden="true">🎉</span>
           <div className="wrap">
-            <div className="head">
+            <div className="head reveal">
               <span className="kicker">Sự kiện sắp tới</span>
               <h2>Đừng bỏ lỡ các hoạt động hấp dẫn 🎉</h2>
             </div>
-            <EventCarousel events={upcomingCards} variant="full" />
+            <FeaturedEvent event={featuredEvent} />
+            {restUpcoming.length > 0 && (
+              <EventCarousel events={restUpcoming} variant="full" />
+            )}
             <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
               <a href="/su-kien" className="btn btn-ghost">Xem tất cả sự kiện →</a>
             </div>

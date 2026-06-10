@@ -750,5 +750,46 @@ footer .logo .wm small { color: #7dd3fc; }
 @media (max-width: 768px) { .testi-slide { width: 86%; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn-primary::after, .hero-blob, .cert-track { animation: none; }
+  .btn-primary::after, .hero-blob, .cert-track, .ev-deco { animation: none; }
+}
+
+/* ===================== Sự kiện nổi bật ===================== */
+.events-highlight { background: linear-gradient(180deg, var(--surface), #fff); overflow: hidden; }
+.ev-deco { position: absolute; font-size: 2.6rem; opacity: 0.25; pointer-events: none; z-index: 0; }
+.ev-deco-1 { top: 7%; left: 4%; animation: float-y 6s ease-in-out infinite; }
+.ev-deco-2 { bottom: 10%; right: 5%; animation: float-y 8s ease-in-out infinite reverse; }
+.events-highlight .wrap { position: relative; z-index: 1; }
+
+.featured-event {
+  display: grid; grid-template-columns: 480px 1fr;
+  border-radius: 24px; overflow: hidden; box-shadow: var(--shadow);
+  margin-bottom: 2rem; background: linear-gradient(135deg, var(--green), var(--green-deep));
+}
+.fe-media { position: relative; min-height: 320px; }
+.fe-media-fallback { width: 100%; height: 100%; min-height: 320px; display: grid; place-items: center; font-size: 5rem; background: var(--green-soft); }
+.fe-tag { position: absolute; top: 1rem; left: 1rem; background: #fff; color: var(--green-deep); font-family: var(--font-quicksand); font-weight: 700; font-size: 0.8rem; padding: 0.4rem 0.9rem; border-radius: 999px; box-shadow: var(--shadow-sm); }
+.fe-body { padding: 2rem 2.2rem; color: #fff; display: flex; flex-direction: column; justify-content: center; }
+.fe-meta { font-weight: 700; font-size: 0.9rem; opacity: 0.92; margin-bottom: 0.5rem; }
+.fe-title { font-size: clamp(1.4rem, 3vw, 2rem); margin-bottom: 0.6rem; }
+.fe-desc { opacity: 0.95; font-size: 0.98rem; line-height: 1.6; margin-bottom: 1.2rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.fe-count { margin-bottom: 1.4rem; }
+.fe-count-label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; opacity: 0.95; }
+.fe-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .featured-event { grid-template-columns: 1fr; }
+  .fe-media { min-height: 200px; }
+  .fe-body { padding: 1.5rem; }
+}
+
+/* Ô lịch + nhãn trên card sự kiện */
+.ev-cal {
+  position: absolute; top: 0.7rem; left: 0.7rem; background: #fff; border-radius: 12px;
+  padding: 0.35rem 0.6rem; display: flex; flex-direction: column; align-items: center;
+  line-height: 1; box-shadow: var(--shadow-sm); min-width: 46px;
+}
+.ev-cal strong { font-family: var(--font-quicksand); font-size: 1.3rem; color: var(--orange-deep); }
+.ev-cal span { font-size: 0.66rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+.ev-soon {
+  position: absolute; top: 0.7rem; right: 0.7rem; background: var(--orange); color: #fff;
+  font-size: 0.74rem; font-weight: 700; padding: 0.3rem 0.7rem; border-radius: 999px; box-shadow: var(--shadow-sm);
 }
