@@ -568,6 +568,27 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
       </div>
 
       <div className="card">
+        <h2>Nhãn nổi quanh ảnh đầu trang ({(c.heroChips ?? []).length})</h2>
+        <p className="muted" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
+          💡 Đây là các thẻ nhỏ nổi quanh logo/ảnh ở đầu trang (VD: &quot;Giáo viên bản ngữ&quot;, &quot;Lớp ≤ 10 bé&quot;). Chọn màu chấm tròn và nhập chữ. Nên để 2–4 thẻ cho cân đối.
+        </p>
+        {(c.heroChips ?? []).map((chip, i) => (
+          <div key={i} className="item-header" style={{ marginTop: i ? "0.6rem" : 0 }}>
+            <div className="afield" style={{ flex: "0 0 64px", marginBottom: 0 }}>
+              <label>Màu chấm</label>
+              <input type="color" value={chip.color || "#80B848"} onChange={(e) => patch((d) => { d.heroChips[i].color = e.target.value; })} style={{ width: "100%", height: 38, padding: 2, cursor: "pointer" }} />
+            </div>
+            <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
+              <label>Chữ hiển thị</label>
+              <input value={chip.label} onChange={(e) => patch((d) => { d.heroChips[i].label = e.target.value; })} placeholder="VD: Giáo viên bản ngữ" />
+            </div>
+            <button className="abtn abtn-del" onClick={() => patch((d) => { d.heroChips.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
+          </div>
+        ))}
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.heroChips = d.heroChips ?? []; d.heroChips.push({ label: "", color: "#80B848" }); })}>＋ Thêm nhãn</button>
+      </div>
+
+      <div className="card">
         <h2>Số liệu nổi bật ({(c.stats ?? []).length})</h2>
         <div className="row2" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
           {(c.stats ?? []).map((s: Stat, i: number) => (
