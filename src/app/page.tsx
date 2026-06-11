@@ -410,7 +410,6 @@ export default async function Home() {
               <div className="offer-deadline-label">⏳ Ưu đãi kết thúc sau:</div>
               <CountdownTimer />
             </div>
-            <a href="#signup" className="btn btn-primary" style={{ marginTop: "1.4rem" }}>Nhận ưu đãi ngay →</a>
           </div>
         </div>
       </section>
