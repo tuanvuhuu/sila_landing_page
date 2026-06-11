@@ -1,29 +1,26 @@
 {
-  "name": "sila-landing-page",
-  "version": "1.0.0",
-  "description": "Modern landing page for SILA English Center - Kids and Teens",
-  "main": "index.html",
+  "name": "happykids-landing-admin",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "python -m http.server 8000",
-    "build": "echo 'No build process required for static site'",
-    "serve": "npx http-server -p 8000"
+    "dev": "next dev",
+    "build": "prisma db push --skip-generate && next build",
+    "start": "next start",
+    "db:push": "prisma db push",
+    "postinstall": "prisma generate"
   },
-  "keywords": [
-    "english",
-    "learning",
-    "kids",
-    "teens",
-    "language-center",
-    "education",
-    "landing-page"
-  ],
-  "author": "SILA English Center",
-  "license": "Proprietary",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tuanvuhuu/sila_landing_page.git"
+  "dependencies": {
+    "@prisma/client": "5.17.0",
+    "@vercel/blob": "^2.4.0",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
-  "engines": {
-    "node": ">=12.0.0"
+  "devDependencies": {
+    "@types/node": "20.14.13",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "prisma": "5.17.0",
+    "typescript": "5.5.4"
   }
 }
