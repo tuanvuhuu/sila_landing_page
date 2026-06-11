@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { SiteContent, Testimonial, FaqItem, Stat, Feature, ChatTopic, Branch } from "@/lib/content";
+import type { SiteContent, Testimonial, FaqItem, Stat, Feature, ChatTopic, Branch, WheelPrize, SocialProofItem } from "@/lib/content";
 import { Btn, BtnDel, BtnAdd, TextInput, TextArea, SelectInput, FileUpload, DateInput, ToastProvider, useToast } from "./ui";
 import "./admin.css";
 
@@ -86,7 +86,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   // Lead polling
   const prevLeadCount = useRef(0);
 
-  const CONTENT_TABS = ["hero", "programs", "reviews", "faq", "contact", "chatbot"];
+  const CONTENT_TABS = ["hero", "programs", "reviews", "faq", "contact", "chatbot", "marketing"];
 
   const TABS = [
     { id: "dashboard", icon: "📊", label: "Tổng quan" },
@@ -96,6 +96,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
     { id: "faq", icon: "❓", label: "FAQ & Ưu đãi" },
     { id: "contact", icon: "📞", label: "Liên hệ" },
     { id: "chatbot", icon: "🤖", label: "Chatbot" },
+    { id: "marketing", icon: "🎡", label: "Vòng quay & Thông báo" },
     { id: "events", icon: "🎉", label: "Sự kiện", badge: events.length },
     { id: "leads", icon: "👥", label: "Khách hàng", badge: leads.length },
   ];
@@ -931,6 +932,80 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
         </div>
       </div>
 
+      </>)}
+
+      {/* ===== VÒNG QUAY & THÔNG BÁO ===== */}
+      {activeTab === "marketing" && (<>
+      <div className="card">
+        <h2>Vòng quay may mắn 🎡</h2>
+        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", fontWeight: 700, cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={c.wheel.enabled}
+            onChange={(e) => patch((d) => { d.wheel.enabled = e.target.checked; })}
+          />
+          Hiển thị vòng quay trên trang chủ
+        </label>
+        <p className="muted" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
+          💡 Mỗi ô là một phần thưởng. &quot;Tên ngắn&quot; hiện trên bánh xe (nên ngắn gọn), &quot;Tên đầy đủ&quot; hiện khi trúng. Khách trúng sẽ để lại SĐT để trung tâm liên hệ trao thưởng.
+        </p>
+        {(c.wheel.prizes ?? []).map((p: WheelPrize, i: number) => (
+          <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
+            <div className="item-header">
+              <div className="afield" style={{ flex: "0 0 64px", marginBottom: 0 }}>
+                <label>Màu</label>
+                <input type="color" value={p.color || "#80b848"} onChange={(e) => patch((d) => { d.wheel.prizes[i].color = e.target.value; })} style={{ width: "100%", height: 38, padding: 2, cursor: "pointer" }} />
+              </div>
+              <div className="row2" style={{ flex: 1 }}>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Tên ngắn (trên bánh xe)</label>
+                  <input value={p.short} onChange={(e) => patch((d) => { d.wheel.prizes[i].short = e.target.value; })} placeholder="VD: Giảm 10%" />
+                </div>
+                <div className="afield" style={{ marginBottom: 0 }}>
+                  <label>Tên đầy đủ (khi trúng)</label>
+                  <input value={p.full} onChange={(e) => patch((d) => { d.wheel.prizes[i].full = e.target.value; })} placeholder="VD: Giảm 10% học phí" />
+                </div>
+              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.wheel.prizes.splice(i, 1); })} title="Xóa">🗑 Xóa</button>
+            </div>
+          </div>
+        ))}
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.wheel.prizes = d.wheel.prizes ?? []; d.wheel.prizes.push({ short: "", full: "", color: "#80b848" }); })}>＋ Thêm phần thưởng</button>
+        <p className="muted" style={{ marginTop: "0.6rem", fontSize: "0.82rem" }}>
+          Gợi ý: nên để 6–8 ô để bánh xe cân đối. Kết quả quay là ngẫu nhiên giữa các ô.
+        </p>
+      </div>
+
+      <div className="card">
+        <h2>Thông báo &quot;vừa đăng ký học thử&quot; 🔔</h2>
+        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", fontWeight: 700, cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={c.socialProof.enabled}
+            onChange={(e) => patch((d) => { d.socialProof.enabled = e.target.checked; })}
+          />
+          Hiển thị thông báo nổi ở góc trang
+        </label>
+        <p className="muted" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
+          💡 Các thông báo nhỏ kiểu &quot;Chị Hương · Quận 7 vừa đăng ký học thử&quot; sẽ lần lượt hiện ở góc dưới để tạo cảm giác đông khách. Danh sách dưới đây hiển thị xoay vòng ngẫu nhiên.
+        </p>
+        <div className="row2" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+          {(c.socialProof.items ?? []).map((s: SocialProofItem, i: number) => (
+            <div key={i} className="item-header">
+              <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Tên hiển thị</label>
+                <input value={s.name} onChange={(e) => patch((d) => { d.socialProof.items[i].name = e.target.value; })} placeholder="VD: Chị Hương" />
+              </div>
+              <div className="afield" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Khu vực</label>
+                <input value={s.area} onChange={(e) => patch((d) => { d.socialProof.items[i].area = e.target.value; })} placeholder="VD: Quận 7" />
+              </div>
+              <button className="abtn abtn-del" onClick={() => patch((d) => { d.socialProof.items.splice(i, 1); })} title="Xóa">🗑</button>
+            </div>
+          ))}
+        </div>
+        <button className="abtn abtn-add" onClick={() => patch((d) => { d.socialProof.items = d.socialProof.items ?? []; d.socialProof.items.push({ name: "", area: "" }); })}>＋ Thêm thông báo</button>
+      </div>
       </>)}
 
       {/* ===== SỰ KIỆN ===== */}

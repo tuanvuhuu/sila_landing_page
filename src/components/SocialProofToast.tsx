@@ -1,28 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { SocialProofItem } from "@/lib/content";
 
-// Dữ liệu mẫu (không phải thông tin thật) tạo cảm giác đông khách.
-const SAMPLES = [
-  { name: "Chị Hương", area: "Quận 7" },
-  { name: "Anh Tuấn", area: "Quận 1" },
-  { name: "Chị Mai", area: "Thủ Đức" },
-  { name: "Chị Lan", area: "Bình Thạnh" },
-  { name: "Anh Dũng", area: "Quận 3" },
-  { name: "Chị Thảo", area: "Gò Vấp" },
-  { name: "Chị Ngọc", area: "Quận 10" },
-  { name: "Anh Hải", area: "Tân Bình" },
-];
-
-export default function SocialProofToast() {
+export default function SocialProofToast({ items }: { items: SocialProofItem[] }) {
   const [item, setItem] = useState<{ name: string; area: string; mins: number } | null>(null);
 
   useEffect(() => {
-    let i = Math.floor(Math.random() * SAMPLES.length);
+    if (!items.length) return;
+    let i = Math.floor(Math.random() * items.length);
     let hideT: ReturnType<typeof setTimeout>;
 
     const show = () => {
-      const s = SAMPLES[i % SAMPLES.length];
+      const s = items[i % items.length];
       i++;
       setItem({ ...s, mins: 2 + Math.floor(Math.random() * 28) });
       hideT = setTimeout(() => setItem(null), 5000);
@@ -35,7 +25,7 @@ export default function SocialProofToast() {
       clearTimeout(hideT);
       clearInterval(id);
     };
-  }, []);
+  }, [items]);
 
   if (!item) return null;
 

@@ -8,6 +8,8 @@ export type Stat = { num: string; lbl: string };
 export type Feature = { title: string; desc: string };
 export type ChatTopic = { label: string; answer: string };
 export type Branch = { name: string; address: string; phone: string; mapEmbed: string };
+export type WheelPrize = { short: string; full: string; color: string };
+export type SocialProofItem = { name: string; area: string };
 export type Chatbot = {
   enabled: boolean;
   title: string;
@@ -35,6 +37,8 @@ export type SiteContent = {
   contact: { phone: string; address: string; email: string; zalo: string; messenger: string; facebook: string; fbPageId: string; zaloOAId: string };
   branches: Branch[];
   chatbot: Chatbot;
+  wheel: { enabled: boolean; prizes: WheelPrize[] };
+  socialProof: { enabled: boolean; items: SocialProofItem[] };
 };
 
 export const defaultContent: SiteContent = {
@@ -123,6 +127,30 @@ export const defaultContent: SiteContent = {
     leadAskPhone: "Ba mẹ cho em xin số điện thoại để trung tâm liên hệ lại nhé?",
     leadSuccess: "Cảm ơn ba mẹ! 💚 Trung tâm sẽ liên hệ trong thời gian sớm nhất ạ.",
   },
+  wheel: {
+    enabled: true,
+    prizes: [
+      { short: "Giảm 10%", full: "Giảm 10% học phí", color: "#80b848" },
+      { short: "Buổi học thử", full: "Tặng 1 buổi học thử miễn phí", color: "#f58220" },
+      { short: "Voucher 200k", full: "Voucher 200.000đ", color: "#a6c940" },
+      { short: "Bộ học cụ", full: "Tặng bộ học cụ cho bé", color: "#e2710e" },
+      { short: "Giảm 5%", full: "Giảm 5% học phí", color: "#5f8f2e" },
+      { short: "Tặng sách", full: "Tặng sách Tiếng Anh", color: "#f9a94d" },
+    ],
+  },
+  socialProof: {
+    enabled: true,
+    items: [
+      { name: "Chị Hương", area: "Quận 7" },
+      { name: "Anh Tuấn", area: "Quận 1" },
+      { name: "Chị Mai", area: "Thủ Đức" },
+      { name: "Chị Lan", area: "Bình Thạnh" },
+      { name: "Anh Dũng", area: "Quận 3" },
+      { name: "Chị Thảo", area: "Gò Vấp" },
+      { name: "Chị Ngọc", area: "Quận 10" },
+      { name: "Anh Hải", area: "Tân Bình" },
+    ],
+  },
 };
 
 export const getContent = cache(async (): Promise<SiteContent> => {
@@ -136,6 +164,16 @@ export const getContent = cache(async (): Promise<SiteContent> => {
       hero: { ...defaultContent.hero, ...parsed.hero },
       contact: { ...defaultContent.contact, ...parsed.contact },
       chatbot: { ...defaultContent.chatbot, ...parsed.chatbot },
+      wheel: {
+        ...defaultContent.wheel,
+        ...parsed.wheel,
+        prizes: parsed.wheel?.prizes ?? defaultContent.wheel.prizes,
+      },
+      socialProof: {
+        ...defaultContent.socialProof,
+        ...parsed.socialProof,
+        items: parsed.socialProof?.items ?? defaultContent.socialProof.items,
+      },
       stats: parsed.stats ?? defaultContent.stats,
       features: parsed.features ?? defaultContent.features,
       testimonials: parsed.testimonials ?? defaultContent.testimonials,
