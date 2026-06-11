@@ -547,16 +547,6 @@ export default async function Home() {
       </footer>
 
       <div className="mobile-cta">
-        {c.contact.zalo && (
-          <a
-            href={c.contact.zalo.startsWith("http") ? c.contact.zalo : `https://zalo.me/${c.contact.zalo.replace(/\s/g, "")}`}
-            className="mcta-zalo"
-            target="_blank"
-            rel="noreferrer"
-          >
-            💬 Zalo
-          </a>
-        )}
         <a href={tel} className="mcta-call">📞 Gọi ngay</a>
         <a href="#signup" className="mcta-reg btn btn-primary">🎁 Đăng ký</a>
       </div>

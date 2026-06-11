@@ -583,7 +583,8 @@ footer .logo .wm small { color: #7dd3fc; }
 @media (max-width: 640px) {
   .mobile-cta { display: flex; }
   footer { padding-bottom: 4.5rem; }
-  .cc-fab { display: none; }
+  /* Nút Zalo nổi (xòe Zalo + Facebook + Messenger) đặt phía trên thanh CTA */
+  .cc-fab { bottom: 80px; }
 }
 
 /* Testimonials */
