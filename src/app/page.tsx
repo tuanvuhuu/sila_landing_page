@@ -21,6 +21,10 @@ import FeaturedEvent from "@/components/FeaturedEvent";
 import ScrollTopOnLoad from "@/components/ScrollTopOnLoad";
 import CardSlider from "@/components/CardSlider";
 import ScrollProgress from "@/components/ScrollProgress";
+import PromoBar from "@/components/PromoBar";
+import SocialProofToast from "@/components/SocialProofToast";
+import RouteQuiz from "@/components/RouteQuiz";
+import LuckyWheel from "@/components/LuckyWheel";
 
 export const dynamic = "force-dynamic";
 
@@ -179,6 +183,8 @@ export default async function Home() {
       <EngagementTracker />
       <ScrollReveal />
 
+      <PromoBar />
+
       <header className="nav">
         <div className="wrap nav-in">
           <span className="logo">
@@ -297,6 +303,16 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="quiz-section">
+        <div className="wrap">
+          <div className="head reveal">
+            <span className="kicker">Tư vấn nhanh</span>
+            <h2>Tìm lộ trình phù hợp cho bé trong 30 giây 🧭</h2>
+          </div>
+          <RouteQuiz />
+        </div>
+      </section>
+
       {c.testimonials.length > 0 && (
         <section className="testimonials">
           <div className="wrap">
@@ -396,6 +412,16 @@ export default async function Home() {
             </div>
             <a href="#signup" className="btn btn-primary" style={{ marginTop: "1.4rem" }}>Nhận ưu đãi ngay →</a>
           </div>
+        </div>
+      </section>
+
+      <section className="wheel-section">
+        <div className="wrap">
+          <div className="head reveal">
+            <span className="kicker">Quay số trúng quà</span>
+            <h2>Vòng quay may mắn 🎡</h2>
+          </div>
+          <LuckyWheel />
         </div>
       </section>
 
@@ -502,6 +528,7 @@ export default async function Home() {
       />
 
       <ExitPopup title={c.promo.title} desc={c.promo.desc} />
+      <SocialProofToast />
     </>
   );
 }
