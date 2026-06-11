@@ -415,15 +415,17 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="wheel-section">
-        <div className="wrap">
-          <div className="head reveal">
-            <span className="kicker">Quay số trúng quà</span>
-            <h2>Vòng quay may mắn 🎡</h2>
+      {c.wheel.enabled && c.wheel.prizes.length > 0 && (
+        <section className="wheel-section">
+          <div className="wrap">
+            <div className="head reveal">
+              <span className="kicker">Quay số trúng quà</span>
+              <h2>Vòng quay may mắn 🎡</h2>
+            </div>
+            <LuckyWheel prizes={c.wheel.prizes} />
           </div>
-          <LuckyWheel />
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="signup" id="signup">
         <div className="wrap">
@@ -528,7 +530,9 @@ export default async function Home() {
       />
 
       <ExitPopup title={c.promo.title} desc={c.promo.desc} />
-      <SocialProofToast />
+      {c.socialProof.enabled && c.socialProof.items.length > 0 && (
+        <SocialProofToast items={c.socialProof.items} />
+      )}
     </>
   );
 }
