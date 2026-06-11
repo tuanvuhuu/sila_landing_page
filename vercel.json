@@ -3,16 +3,11 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "other",
   "public": true,
   "env": [
     {
       "key": "NODE_ENV",
       "value": "production"
-    },
-    {
-      "key": "PORT",
-      "value": "3000"
     }
   ],
   "build": {
@@ -21,21 +16,11 @@
     }
   },
   "functions": {
-    "api/**/*.js": {
+    "api/**/*.ts": {
       "memory": 1024,
       "maxDuration": 60
     }
   },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -43,6 +28,10 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=300"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         }
       ]
     },
@@ -60,11 +49,19 @@
         {
           "key": "X-Frame-Options",
           "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
         }
       ]
     }
   ],
-  "regions": [
-    "sin1"
-  ]
+  "regions": ["sin1"],
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "claude/esl-landing-page-clone-3clo3i": true
+    }
+  }
 }

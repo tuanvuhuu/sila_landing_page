@@ -1,7 +1,7 @@
-# ESL Academy — Landing page + Trang quản trị (Next.js + TypeScript)
+# SILA English Center — Landing page + Trang quản trị (Next.js + TypeScript)
 
-Bộ khởi đầu cho một landing page trung tâm tiếng Anh trẻ em, kèm trang quản trị tự xây để
-sửa nội dung, tải ảnh và xem danh sách phụ huynh đăng ký — không cần đụng tới code.
+Landing page chuyên nghiệp cho SILA English Center (trung tâm tiếng Anh cho trẻ em và thanh thiếu niên), 
+kèm trang quản trị tự xây để sửa nội dung, tải ảnh và xem danh sách phụ huynh đăng ký — không cần đụng tới code.
 
 ## Có sẵn những gì
 
