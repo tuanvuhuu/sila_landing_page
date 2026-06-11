@@ -1,15 +1,8 @@
 {
-  "projectName": "sila-landing-page",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "public": true,
-  "env": [
-    {
-      "key": "NODE_ENV",
-      "value": "production"
-    }
-  ],
   "build": {
     "env": {
       "NODE_ENV": "production"
@@ -57,11 +50,6 @@
       ]
     }
   ],
-  "regions": ["sin1"],
-  "git": {
-    "deploymentEnabled": {
-      "main": true,
-      "claude/esl-landing-page-clone-3clo3i": true
-    }
-  }
+  "regions": ["sin1"]
 }
+
