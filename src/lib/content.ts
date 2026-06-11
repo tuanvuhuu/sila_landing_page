@@ -10,6 +10,7 @@ export type ChatTopic = { label: string; answer: string };
 export type Branch = { name: string; address: string; phone: string; mapEmbed: string };
 export type WheelPrize = { short: string; full: string; color: string };
 export type SocialProofItem = { name: string; area: string };
+export type HeroChip = { label: string; color: string };
 export type Chatbot = {
   enabled: boolean;
   title: string;
@@ -27,6 +28,7 @@ export type Chatbot = {
 export type SiteContent = {
   centerName: string;
   hero: { title: string; subtitle: string; ctaText: string; image: string; eyebrow: string };
+  heroChips: HeroChip[];
   stats: Stat[];
   programs: Program[];
   features: Feature[];
@@ -51,6 +53,10 @@ export const defaultContent: SiteContent = {
     image: "",
     eyebrow: "🎓 Đang nhận học viên kỳ mới",
   },
+  heroChips: [
+    { label: "Giáo viên bản ngữ", color: "#80B848" },
+    { label: "Lớp ≤ 10 bé", color: "#F58220" },
+  ],
   stats: [
     { num: "2.000+", lbl: "Học viên" },
     { num: "8 năm", lbl: "Kinh nghiệm" },
@@ -162,6 +168,7 @@ export const getContent = cache(async (): Promise<SiteContent> => {
       ...defaultContent,
       ...parsed,
       hero: { ...defaultContent.hero, ...parsed.hero },
+      heroChips: parsed.heroChips ?? defaultContent.heroChips,
       contact: { ...defaultContent.contact, ...parsed.contact },
       chatbot: { ...defaultContent.chatbot, ...parsed.chatbot },
       wheel: {

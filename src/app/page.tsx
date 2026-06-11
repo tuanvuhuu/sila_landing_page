@@ -230,8 +230,11 @@ export default async function Home() {
                 />
               </div>
             </div>
-            <span className="chip c1"><span className="d" style={{ background: "#80B848" }} /> Giáo viên bản ngữ</span>
-            <span className="chip c2"><span className="d" style={{ background: "#F58220" }} /> Lớp ≤ 10 bé</span>
+            {(c.heroChips ?? []).map((chip, i) => (
+              <span key={i} className={`chip c${(i % 4) + 1}`}>
+                <span className="d" style={{ background: chip.color }} /> {chip.label}
+              </span>
+            ))}
           </div>
         </div>
       </section>
