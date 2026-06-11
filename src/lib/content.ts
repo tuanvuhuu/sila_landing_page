@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/db";
+import { currentSite, normalizeSite } from "@/lib/site";
 
 export type Program = { age: string; title: string; desc: string };
 export type Testimonial = { name: string; role: string; text: string; rating: number; avatar: string };
@@ -159,8 +160,9 @@ export const defaultContent: SiteContent = {
   },
 };
 
-export const getContent = cache(async (): Promise<SiteContent> => {
-  const row = await prisma.siteContent.findUnique({ where: { id: 1 } });
+export const getContent = cache(async (site?: string): Promise<SiteContent> => {
+  const key = normalizeSite(site || currentSite());
+  const row = await prisma.siteContent.findUnique({ where: { site: key } });
   if (!row) return defaultContent;
   try {
     const parsed = JSON.parse(row.data) as Partial<SiteContent>;

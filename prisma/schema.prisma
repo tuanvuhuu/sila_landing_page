@@ -8,12 +8,16 @@ datasource db {
 }
 
 model SiteContent {
-  id   Int    @id @default(1)
+  id   Int    @id @default(autoincrement())
+  // Mã site (nhiều site dùng chung 1 DB). Dữ liệu cũ = "default".
+  site String @unique @default("default")
   data String
 }
 
 model Lead {
   id          Int      @id @default(autoincrement())
+  // Site mà lead này thuộc về
+  site        String   @default("default")
   name        String
   phone       String
   ageGroup    String   @default("")
@@ -29,10 +33,14 @@ model Lead {
   utmTerm     String   @default("")
   fbclid      String   @default("")
   createdAt   DateTime @default(now())
+
+  @@index([site])
 }
 
 model Event {
   id          Int       @id @default(autoincrement())
+  // Site mà sự kiện này thuộc về
+  site        String    @default("default")
   title       String
   description String    @default("")
   image       String    @default("")
@@ -45,4 +53,6 @@ model Event {
   status      String    @default("draft") // draft | published | cancelled
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([site])
 }

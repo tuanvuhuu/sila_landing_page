@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getContent } from "@/lib/content";
+import { currentSite } from "@/lib/site";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 type Props = { params: { id: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const ev = await prisma.event.findUnique({ where: { id: Number(params.id) } });
+  const ev = await prisma.event.findFirst({ where: { id: Number(params.id), site: currentSite() } });
   if (!ev) return { title: "Không tìm thấy sự kiện" };
   const c = await getContent();
   return {
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EventDetailPage({ params }: Props) {
   const [ev, c] = await Promise.all([
-    prisma.event.findUnique({ where: { id: Number(params.id) } }),
+    prisma.event.findFirst({ where: { id: Number(params.id), site: currentSite() } }),
     getContent(),
   ]);
 

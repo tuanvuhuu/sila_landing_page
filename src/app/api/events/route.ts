@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAuthedFromReq } from "@/lib/auth";
+import { currentSite, normalizeSite } from "@/lib/site";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,17 +16,20 @@ export async function GET(req: Request) {
   const limit = url.searchParams.has("limit") ? Number(url.searchParams.get("limit")) : undefined;
   const now = new Date();
 
-  // Admin: lấy tất cả sự kiện (cần auth)
+  // Admin: lấy tất cả sự kiện của 1 site (cần auth). ?site=xxx để chọn site.
   if (all) {
     if (!isAuthedFromReq(req)) {
       return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
     }
-    const events = await prisma.event.findMany({ orderBy: { date: "desc" } });
+    const siteParam = url.searchParams.get("site");
+    const where = siteParam ? { site: normalizeSite(siteParam) } : {};
+    const events = await prisma.event.findMany({ where, orderBy: { date: "desc" } });
     return NextResponse.json(events);
   }
 
   const events = await prisma.event.findMany({
     where: {
+      site: currentSite(),
       status: "published",
       date: history ? { lt: now } : { gte: now },
     },
@@ -51,6 +55,7 @@ export async function POST(req: Request) {
   const { images } = body;
   const event = await prisma.event.create({
     data: {
+      site: body.site ? normalizeSite(body.site) : currentSite(),
       title: String(title),
       description: String(description ?? ""),
       image: String(image ?? ""),

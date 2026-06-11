@@ -15,6 +15,7 @@ type Lead = {
   utmSource: string;
   utmCampaign: string;
   eventId: number | null;
+  site: string;
   createdAt: string;
 };
 
@@ -56,12 +57,17 @@ async function uploadFile(file: File): Promise<string> {
   return data.url as string;
 }
 
-function AdminEditorInner({ initial }: { initial: SiteContent }) {
+function AdminEditorInner({ initial, initialSite }: { initial: SiteContent; initialSite: string }) {
   const router = useRouter();
   const [c, setC] = useState<SiteContent>(initial);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
+  // Multi-site: site đang chỉnh + danh sách site + ô tạo site mới
+  const [activeSite, setActiveSite] = useState(initialSite);
+  const [sites, setSites] = useState<{ site: string; leadCount: number }[]>([]);
+  const [newSiteKey, setNewSiteKey] = useState("");
+  const [leadSiteFilter, setLeadSiteFilter] = useState("all");
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [galleryProgress, setGalleryProgress] = useState("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -112,8 +118,16 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   }, {});
   const noEventCount = leads.filter((l) => l.eventId == null).length;
 
+  // Các site đang có khách đăng ký (để lọc "gom lead 1 chỗ")
+  const siteLeadCounts = leads.reduce<Record<string, number>>((acc, l) => {
+    const s = l.site || "default";
+    acc[s] = (acc[s] ?? 0) + 1;
+    return acc;
+  }, {});
+
   // Filtered leads
   const filteredLeads = leads.filter((l) => {
+    if (leadSiteFilter !== "all" && (l.site || "default") !== leadSiteFilter) return false;
     if (leadFilter !== "all" && (l.status || "new") !== leadFilter) return false;
     if (leadEventFilter !== "all") {
       if (leadEventFilter === "none") {
@@ -164,8 +178,50 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
       .then((r) => (r.ok ? r.json() : []))
       .then((data: Lead[]) => { setLeads(data); prevLeadCount.current = data.length; })
       .catch(() => setLeads([]));
-    loadEvents();
-  }, []);
+    loadEvents(initialSite);
+    loadSites();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function loadSites() {
+    try {
+      const res = await fetch("/api/sites");
+      if (res.ok) setSites(await res.json());
+    } catch { /* ignore */ }
+  }
+
+  // Chuyển sang chỉnh nội dung/sự kiện của site khác
+  async function switchSite(site: string) {
+    if (site === activeSite) return;
+    if (isDirty.current && !confirm("Bạn có thay đổi chưa lưu. Chuyển site sẽ mất. Tiếp tục?")) return;
+    try {
+      const res = await fetch(`/api/content?site=${encodeURIComponent(site)}`);
+      if (res.ok) {
+        setC(await res.json());
+        isDirty.current = false;
+        setSaved(false);
+      }
+    } catch { toast("Không tải được nội dung site", "error"); }
+    setActiveSite(site);
+    loadEvents(site);
+  }
+
+  async function addSite() {
+    const key = newSiteKey.trim().toLowerCase();
+    if (!key) return;
+    try {
+      const res = await fetch("/api/sites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ site: key }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { toast(data.error || "Tạo site thất bại", "error"); return; }
+      setNewSiteKey("");
+      await loadSites();
+      toast(`Đã tạo site "${key}"`, "success");
+      switchSite(key);
+    } catch { toast("Tạo site thất bại", "error"); }
+  }
 
   // Poll for new leads every 30s
   useEffect(() => {
@@ -185,9 +241,9 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
     return () => clearInterval(interval);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function loadEvents() {
+  async function loadEvents(site: string = activeSite) {
     try {
-      const res = await fetch("/api/events?all=1");
+      const res = await fetch(`/api/events?all=1&site=${encodeURIComponent(site)}`);
       if (res.ok) setEvents(await res.json());
     } catch { /* ignore */ }
   }
@@ -202,7 +258,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
       const method = editingEvent.id ? "PUT" : "POST";
       const body = editingEvent.id
         ? editingEvent
-        : { ...editingEvent };
+        : { ...editingEvent, site: activeSite };
       const res = await fetch("/api/events", {
         method,
         headers: { "Content-Type": "application/json" },
@@ -309,7 +365,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
       const res = await fetch("/api/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(c),
+        body: JSON.stringify({ site: activeSite, ...c }),
       });
       if (!res.ok) throw new Error();
       setSaved(true);
@@ -349,8 +405,9 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   }
 
   function exportCSV() {
-    const headers = ["Tên", "SĐT", "Độ tuổi", "Sự kiện", "Nguồn", "Campaign", "Trạng thái", "Thời gian"];
+    const headers = ["Site", "Tên", "SĐT", "Độ tuổi", "Sự kiện", "Nguồn", "Campaign", "Trạng thái", "Thời gian"];
     const rows = leads.map((l) => [
+      l.site || "default",
       l.name, l.phone, l.ageGroup || "",
       l.eventId != null ? (eventTitleById.get(l.eventId) ?? `Sự kiện #${l.eventId}`) : "",
       l.utmSource || "", l.utmCampaign || "",
@@ -423,6 +480,31 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
           <a className="abtn" href="/" target="_blank" rel="noreferrer">Xem trang ↗</a>
           <Btn onClick={logout}>Đăng xuất</Btn>
         </div>
+      </div>
+
+      {/* Thanh chọn site (nhiều site dùng chung 1 DB) */}
+      <div className="site-bar">
+        <span className="site-bar-label">🌐 Site đang chỉnh:</span>
+        <select
+          className="site-bar-select"
+          value={activeSite}
+          onChange={(e) => switchSite(e.target.value)}
+          title="Chọn site để sửa nội dung & sự kiện"
+        >
+          {(sites.length ? sites.map((s) => s.site) : [activeSite]).map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <span className="site-bar-add">
+          <input
+            value={newSiteKey}
+            onChange={(e) => setNewSiteKey(e.target.value)}
+            placeholder="mã-site-moi"
+            onKeyDown={(e) => { if (e.key === "Enter") addSite(); }}
+          />
+          <button className="abtn abtn-add" onClick={addSite} title="Tạo site mới">＋ Thêm site</button>
+        </span>
+        <span className="site-bar-hint muted">Nội dung, sự kiện và khách đăng ký được tách riêng theo từng site.</span>
       </div>
 
       <div className="admin-tabs">
@@ -1209,6 +1291,19 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
               onChange={(e) => setLeadSearch(e.target.value)}
               style={{ flex: 1, minWidth: 180, padding: "0.5rem 0.75rem", border: "1px solid #ddd", borderRadius: 9, fontSize: "0.9rem", fontFamily: "inherit", background: "#fbfaf7" }}
             />
+            {Object.keys(siteLeadCounts).length > 1 && (
+              <select
+                value={leadSiteFilter}
+                onChange={(e) => setLeadSiteFilter(e.target.value)}
+                title="Lọc khách theo site"
+                style={{ padding: "0.5rem 0.75rem", border: "1px solid #ddd", borderRadius: 9, fontSize: "0.9rem", fontFamily: "inherit", background: "#fbfaf7" }}
+              >
+                <option value="all">🌐 Mọi site ({leads.length})</option>
+                {Object.entries(siteLeadCounts).map(([s, count]) => (
+                  <option key={s} value={s}>{s} ({count})</option>
+                ))}
+              </select>
+            )}
             <select
               value={leadFilter}
               onChange={(e) => setLeadFilter(e.target.value)}
@@ -1250,6 +1345,11 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
                 <span>{l.phone}</span>
                 <span>{l.ageGroup || "—"}</span>
                 <span>
+                  {Object.keys(siteLeadCounts).length > 1 && (
+                    <span style={{ display: "inline-block", background: "#e6effb", color: "#1d5fb0", fontWeight: 700, fontSize: "0.75rem", padding: "1px 7px", borderRadius: 999, marginRight: 4 }}>
+                      🌐 {l.site || "default"}
+                    </span>
+                  )}
                   {l.eventId != null && (
                     <span style={{ display: "inline-block", background: "#eef4de", color: "#5f8f2e", fontWeight: 700, fontSize: "0.75rem", padding: "1px 7px", borderRadius: 999, marginRight: 4 }}>
                       🎉 {eventTitleById.get(l.eventId) ?? `Sự kiện #${l.eventId}`}
@@ -1317,10 +1417,10 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   );
 }
 
-export default function AdminEditor({ initial }: { initial: SiteContent }) {
+export default function AdminEditor({ initial, initialSite }: { initial: SiteContent; initialSite: string }) {
   return (
     <ToastProvider>
-      <AdminEditorInner initial={initial} />
+      <AdminEditorInner initial={initial} initialSite={initialSite} />
     </ToastProvider>
   );
 }
