@@ -66,13 +66,15 @@ section { position: relative; }
 .promo-bar {
   position: sticky; top: 0; z-index: 52; height: 38px; overflow: hidden;
   background: linear-gradient(90deg, var(--orange), var(--orange-deep));
-  color: #fff; display: flex; align-items: center;
+  color: #fff; display: flex; align-items: center; text-decoration: none;
+  transition: filter 0.15s ease;
 }
-.promo-bar-in { display: flex; align-items: center; justify-content: center; gap: 0.8rem; width: 100%; }
+.promo-bar:hover { filter: brightness(1.06); }
+.promo-bar-in { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; }
 .promo-bar-text { font-weight: 700; font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .promo-bar-text strong { font-variant-numeric: tabular-nums; }
-.promo-bar-cta { flex-shrink: 0; background: #fff; color: var(--orange-deep); font-family: var(--font-quicksand); font-weight: 700; font-size: 0.8rem; padding: 0.28rem 0.8rem; border-radius: 999px; white-space: nowrap; }
-@media (max-width: 560px) { .promo-bar-text { font-size: 0.76rem; } .promo-bar-cta { display: none; } }
+.promo-bar-arrow { flex-shrink: 0; font-weight: 800; font-size: 0.95rem; line-height: 1; }
+@media (max-width: 560px) { .promo-bar-text { font-size: 0.76rem; } }
 .nav-in { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0; }
 .logo { display: flex; align-items: center; gap: 0.6rem; }
 .logo img { width: 46px; height: 46px; object-fit: contain; }

@@ -28,13 +28,13 @@ export default function PromoBar({ text = "Ưu đãi học thử tháng này" }:
   };
 
   return (
-    <div className="promo-bar">
-      <div className="wrap promo-bar-in">
+    <a href="#signup" className="promo-bar" aria-label="Đăng ký học thử ngay">
+      <span className="wrap promo-bar-in">
         <span className="promo-bar-text">
           🎁 {text} — còn <strong suppressHydrationWarning>{fmt()}</strong>
         </span>
-        <a href="#signup" className="promo-bar-cta">Đăng ký ngay →</a>
-      </div>
-    </div>
+        <span className="promo-bar-arrow" aria-hidden="true">→</span>
+      </span>
+    </a>
   );
 }
