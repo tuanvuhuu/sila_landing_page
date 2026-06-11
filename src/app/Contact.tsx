@@ -44,6 +44,15 @@ function ZaloIcon() {
   );
 }
 
+// Logo Zalo to hơn cho nút nổi chính
+function ZaloTriggerIcon() {
+  return (
+    <svg viewBox="0 0 48 24" width="46" height="23" aria-hidden="true">
+      <text x="24" y="18" textAnchor="middle" fontFamily="Quicksand, sans-serif" fontWeight="800" fontSize="18" fill="#fff">Zalo</text>
+    </svg>
+  );
+}
+
 function MessengerIcon() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
@@ -69,25 +78,19 @@ function CloseIcon() {
   );
 }
 
-function CallCenterIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
-      <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.1 2 2 0 0 1 4 2.1h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.8 2.1z" fill="#fff"/>
-    </svg>
-  );
-}
-
-// Nút Call Center nổi ở góc dưới phải — bấm vào mở popup danh sách liên hệ
+// Nút liên hệ nổi (thương hiệu Zalo) ở góc dưới phải — hover/bấm để xòe các kênh
 export function ContactButtons({
   phone,
   zalo,
   messenger,
   facebook,
+  fbPageId,
 }: {
   phone?: string;
   zalo?: string;
   messenger?: string;
   facebook?: string;
+  fbPageId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
@@ -129,13 +132,17 @@ export function ContactButtons({
     href: zalo || (phone ? `https://zalo.me/${phone.replace(/\s/g, "")}` : "#"),
     icon: <ZaloIcon />, label: "Nhắn Zalo", className: "cc-item cc-zalo", target: "_blank",
   });
-  channels.push({
-    key: "facebook",
-    href: facebook || "#",
-    icon: <FacebookIcon />, label: "Facebook", className: "cc-item cc-facebook", target: "_blank",
-  });
-  if (messenger) {
-    channels.push({ key: "messenger", href: messenger, icon: <MessengerIcon />, label: "Messenger", className: "cc-item cc-messenger", target: "_blank" });
+  if (facebook) {
+    channels.push({
+      key: "facebook",
+      href: facebook,
+      icon: <FacebookIcon />, label: "Facebook", className: "cc-item cc-facebook", target: "_blank",
+    });
+  }
+  // Messenger: ưu tiên link riêng, nếu không có thì suy ra từ Page ID (m.me/{id})
+  const messengerHref = messenger || (fbPageId ? `https://m.me/${fbPageId}` : "");
+  if (messengerHref) {
+    channels.push({ key: "messenger", href: messengerHref, icon: <MessengerIcon />, label: "Messenger", className: "cc-item cc-messenger", target: "_blank" });
   }
 
   return (
@@ -168,13 +175,13 @@ export function ContactButtons({
         </div>
       </div>
 
-      {/* Nút chính */}
+      {/* Nút chính (thương hiệu Zalo) */}
       <button
-        className={`cc-trigger${open ? " cc-trigger-open" : ""}`}
+        className={`cc-trigger cc-trigger-zalo${open ? " cc-trigger-open" : ""}`}
         onClick={() => setOpen((prev) => !prev)}
-        aria-label="Liên hệ"
+        aria-label="Liên hệ Zalo, Facebook, Messenger"
       >
-        <span className="cc-trigger-icon cc-icon-phone"><CallCenterIcon /></span>
+        <span className="cc-trigger-icon cc-icon-phone"><ZaloTriggerIcon /></span>
         <span className="cc-trigger-icon cc-icon-close"><CloseIcon /></span>
       </button>
     </div>

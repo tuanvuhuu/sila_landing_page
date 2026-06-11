@@ -422,6 +422,10 @@ footer .logo .wm small { color: #7dd3fc; }
   50% { transform: scale(1.15); opacity: 0; }
 }
 .cc-trigger:hover { transform: scale(1.08); box-shadow: 0 8px 30px -4px rgba(245, 130, 32, 0.65); }
+/* Biến nút nổi thành thương hiệu Zalo (xanh dương) */
+.cc-trigger-zalo { background: linear-gradient(135deg, #0a84ff, #0052cc); box-shadow: 0 6px 24px -4px rgba(0, 104, 255, 0.55), var(--shadow-sm); }
+.cc-trigger-zalo:hover { box-shadow: 0 8px 30px -4px rgba(0, 104, 255, 0.65); }
+.cc-trigger-zalo::before { border-color: rgba(0, 104, 255, 0.4); }
 .cc-trigger-open { transform: rotate(0deg); }
 .cc-trigger-open::before { animation: none; opacity: 0; }
 .cc-trigger-icon { position: absolute; transition: transform 0.3s ease, opacity 0.3s ease; }

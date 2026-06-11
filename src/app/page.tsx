@@ -570,6 +570,7 @@ export default async function Home() {
         zalo={c.contact.zalo}
         messenger={c.contact.messenger}
         facebook={c.contact.facebook}
+        fbPageId={c.contact.fbPageId}
       />
 
       <ExitPopup title={c.promo.title} desc={c.promo.desc} />
