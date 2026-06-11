@@ -44,11 +44,14 @@ function ZaloIcon() {
   );
 }
 
-// Logo Zalo to hơn cho nút nổi chính
-function ZaloTriggerIcon() {
+// Icon "liên hệ" (bong bóng chat) cho nút nổi chính
+function ContactIcon() {
   return (
-    <svg viewBox="0 0 48 24" width="46" height="23" aria-hidden="true">
-      <text x="24" y="18" textAnchor="middle" fontFamily="Quicksand, sans-serif" fontWeight="800" fontSize="18" fill="#fff">Zalo</text>
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" aria-hidden="true">
+      <path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 20.5l1.6-5.6A8.4 8.4 0 1 1 21 11.5z" fill="#fff"/>
+      <circle cx="8.5" cy="11.5" r="1.2" fill="#f58220"/>
+      <circle cx="12" cy="11.5" r="1.2" fill="#f58220"/>
+      <circle cx="15.5" cy="11.5" r="1.2" fill="#f58220"/>
     </svg>
   );
 }
@@ -175,13 +178,13 @@ export function ContactButtons({
         </div>
       </div>
 
-      {/* Nút chính (thương hiệu Zalo) */}
+      {/* Nút chính (icon liên hệ) */}
       <button
-        className={`cc-trigger cc-trigger-zalo${open ? " cc-trigger-open" : ""}`}
+        className={`cc-trigger${open ? " cc-trigger-open" : ""}`}
         onClick={() => setOpen((prev) => !prev)}
         aria-label="Liên hệ Zalo, Facebook, Messenger"
       >
-        <span className="cc-trigger-icon cc-icon-phone"><ZaloTriggerIcon /></span>
+        <span className="cc-trigger-icon cc-icon-phone"><ContactIcon /></span>
         <span className="cc-trigger-icon cc-icon-close"><CloseIcon /></span>
       </button>
     </div>
