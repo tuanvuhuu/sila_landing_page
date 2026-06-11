@@ -863,7 +863,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
               <small style={{ color: "#6b6480", fontSize: "0.8rem" }}>Google Maps → Chia sẻ → Nhúng bản đồ → copy link trong src=&quot;...&quot;</small>
               {b.mapEmbed && (
                 <div style={{ marginTop: "0.5rem", borderRadius: 12, overflow: "hidden", border: "1px solid #e9e6df" }}>
-                  <iframe src={b.mapEmbed} width="100%" height="150" style={{ border: 0, display: "block" }} loading="lazy" title={`Map ${b.name}`} />
+                  <iframe src={(b.mapEmbed.match(/src=["']([^"']+)["']/i)?.[1] ?? b.mapEmbed).trim()} width="100%" height="150" style={{ border: 0, display: "block" }} loading="lazy" title={`Map ${b.name}`} />
                 </div>
               )}
             </div>

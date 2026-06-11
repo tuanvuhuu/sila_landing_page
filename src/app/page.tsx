@@ -28,6 +28,13 @@ import LuckyWheel from "@/components/LuckyWheel";
 
 export const dynamic = "force-dynamic";
 
+// Người dùng có thể dán cả đoạn <iframe ... src="..."> hoặc chỉ link.
+// Lấy ra đúng URL để nhúng bản đồ.
+function mapSrc(embed: string): string {
+  const m = embed.match(/src=["']([^"']+)["']/i);
+  return (m ? m[1] : embed).trim();
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
   return {
@@ -426,6 +433,39 @@ export default async function Home() {
               <h2>Vòng quay may mắn 🎡</h2>
             </div>
             <LuckyWheel prizes={c.wheel.prizes} />
+          </div>
+        </section>
+      )}
+
+      {c.branches.some((b) => b.mapEmbed) && (
+        <section className="locations" id="locations">
+          <div className="wrap">
+            <div className="head reveal">
+              <span className="kicker">Ghé thăm chúng tôi</span>
+              <h2>Hệ thống cơ sở 📍</h2>
+            </div>
+            <div className="loc-grid">
+              {c.branches.map((b, i) => (
+                <div className="loc-card reveal" key={i}>
+                  {b.mapEmbed && (
+                    <div className="loc-map">
+                      <iframe
+                        src={mapSrc(b.mapEmbed)}
+                        loading="lazy"
+                        title={`Bản đồ ${b.name}`}
+                        referrerPolicy="no-referrer-when-downgrade"
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
+                  <div className="loc-body">
+                    <strong>{b.name}</strong>
+                    {b.address && <span>{b.address}</span>}
+                    {b.phone && <a href={`tel:${b.phone.replace(/\s/g, "")}`}>📞 {b.phone}</a>}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
