@@ -1,0 +1,15 @@
+
+> happykids-landing-admin@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+  - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1573ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1002ms (522 modules)
+ GET / 200 in 2172ms
+ GET / 200 in 366ms
+[?25h
