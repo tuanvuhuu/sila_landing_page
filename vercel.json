@@ -8,12 +8,6 @@
       "NODE_ENV": "production"
     }
   },
-  "functions": {
-    "api/**/*.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
@@ -52,4 +46,5 @@
   ],
   "regions": ["sin1"]
 }
+
 
