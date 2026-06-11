@@ -640,7 +640,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
       <div className="card">
         <h2>Đánh giá phụ huynh ({c.testimonials?.length || 0})</h2>
         <p className="muted" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
-          💡 Nhập đúng tên & lời đánh giá thật. Upload ảnh chân dung phụ huynh để tăng độ tin cậy.
+          💡 Nhập đúng tên & lời đánh giá thật. Đính kèm ảnh feedback (ảnh chụp tin nhắn/đánh giá) — ảnh sẽ hiện cùng comment, khách bấm vào để xem rõ.
         </p>
         {(c.testimonials ?? []).map((t: Testimonial, i: number) => (
           <div key={i} style={{ borderTop: i ? "1px solid #f0eee8" : "none", paddingTop: i ? "0.9rem" : 0, marginTop: i ? "0.6rem" : 0 }}>
@@ -671,7 +671,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
                 </select>
               </div>
               <div className="afield">
-                <label>Ảnh đại diện (tùy chọn)</label>
+                <label>Ảnh feedback (tùy chọn — bấm để xem to)</label>
                 <div className="thumbs">
                   {t.avatar && <img className="thumb" src={t.avatar} alt={t.name} />}
                   <input

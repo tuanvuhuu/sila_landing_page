@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { Testimonial } from "@/lib/content";
 
@@ -17,8 +17,7 @@ function Stars({ n }: { n: number }) {
   );
 }
 
-function Avatar({ name, src }: { name: string; src: string }) {
-  if (src) return <Image className="testi-avatar" src={src} alt={name} width={46} height={46} />;
+function Initials({ name }: { name: string }) {
   const initials = name.split(" ").slice(-2).map((w) => w[0]?.toUpperCase() ?? "").join("");
   return <span className="testi-avatar testi-avatar-init">{initials}</span>;
 }
@@ -26,6 +25,7 @@ function Avatar({ name, src }: { name: string; src: string }) {
 /** Slider testimonials tự chạy (cuộn ngang), tạm dừng khi rê chuột. */
 export default function TestimonialSlider({ items }: { items: Testimonial[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -55,24 +55,65 @@ export default function TestimonialSlider({ items }: { items: Testimonial[] }) {
     };
   }, [items.length]);
 
+  const close = useCallback(() => setLightbox(null), []);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [lightbox, close]);
+
   return (
-    <div className="testi-slider" ref={trackRef}>
-      {items.map((t, i) => (
-        <div className="testi-slide" key={i}>
-          <div className="testi-card">
-            <span className="testi-quote">&ldquo;</span>
-            <Stars n={t.rating} />
-            <p className="testi-text">{t.text}</p>
-            <div className="testi-author">
-              <Avatar name={t.name} src={t.avatar} />
-              <div>
-                <div className="testi-name">{t.name}</div>
-                <div className="testi-role">{t.role}</div>
+    <>
+      <div className="testi-slider" ref={trackRef}>
+        {items.map((t, i) => (
+          <div className="testi-slide" key={i}>
+            <div className="testi-card">
+              <span className="testi-quote">&ldquo;</span>
+              <Stars n={t.rating} />
+              <p className="testi-text">{t.text}</p>
+              {t.avatar && (
+                <button
+                  type="button"
+                  className="testi-feedback"
+                  onClick={() => setLightbox(t.avatar)}
+                  aria-label={`Xem ảnh feedback của ${t.name}`}
+                >
+                  <Image
+                    src={t.avatar}
+                    alt={`Ảnh feedback của ${t.name}`}
+                    fill
+                    sizes="(max-width: 640px) 80vw, 360px"
+                    style={{ objectFit: "cover" }}
+                  />
+                  <span className="testi-feedback-zoom">🔍 Xem ảnh feedback</span>
+                </button>
+              )}
+              <div className="testi-author">
+                <Initials name={t.name} />
+                <div>
+                  <div className="testi-name">{t.name}</div>
+                  <div className="testi-role">{t.role}</div>
+                </div>
               </div>
             </div>
           </div>
+        ))}
+      </div>
+
+      {lightbox && (
+        <div className="lb" onClick={close} role="dialog" aria-modal="true" aria-label="Xem ảnh feedback">
+          <button className="lb-close" onClick={close} aria-label="Đóng">✕</button>
+          <div className="lb-stage" onClick={(e) => e.stopPropagation()}>
+            <Image src={lightbox} alt="Ảnh feedback phụ huynh" fill sizes="100vw" style={{ objectFit: "contain" }} priority />
+          </div>
         </div>
-      ))}
-    </div>
+      )}
+    </>
   );
 }
