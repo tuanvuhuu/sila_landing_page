@@ -20,6 +20,7 @@ import TestimonialSlider from "@/components/TestimonialSlider";
 import FeaturedEvent from "@/components/FeaturedEvent";
 import ScrollTopOnLoad from "@/components/ScrollTopOnLoad";
 import CardSlider from "@/components/CardSlider";
+import ScrollProgress from "@/components/ScrollProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -173,6 +174,7 @@ export default async function Home() {
   return (
     <>
       <ScrollTopOnLoad />
+      <ScrollProgress />
       <JsonLd content={c} siteUrl={siteUrl} />
       <EngagementTracker />
       <ScrollReveal />
@@ -356,6 +358,20 @@ export default async function Home() {
 
       {c.faq.length > 0 && (
         <section className="faq-section">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: c.faq.map((f) => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+              }),
+            }}
+          />
           <div className="wrap">
             <div className="head">
               <span className="kicker">Câu hỏi thường gặp</span>
@@ -451,7 +467,11 @@ export default async function Home() {
 
         {/* Copyright */}
         <div className="f-bar">
-          <div className="wrap">© {new Date().getFullYear()} {c.centerName}. All rights reserved.</div>
+          <div className="wrap">
+            © {new Date().getFullYear()} {c.centerName}. All rights reserved.
+            {" · "}
+            <a href="/chinh-sach-bao-mat">Chính sách bảo mật</a>
+          </div>
         </div>
       </footer>
 
