@@ -14,6 +14,7 @@ type Lead = {
   status: string;
   utmSource: string;
   utmCampaign: string;
+  eventId: number | null;
   createdAt: string;
 };
 
@@ -75,6 +76,7 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   // New feature states
   const [leadSearch, setLeadSearch] = useState("");
   const [leadFilter, setLeadFilter] = useState("all");
+  const [leadEventFilter, setLeadEventFilter] = useState("all"); // "all" | "none" | "<eventId>"
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [darkMode, setDarkMode] = useState(false);
 
@@ -101,9 +103,25 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
     { id: "leads", icon: "👥", label: "Khách hàng", badge: leads.length },
   ];
 
+  // Tra tên sự kiện theo id
+  const eventTitleById = new Map(events.map((e) => [e.id, e.title]));
+  // Các sự kiện đang có khách đăng ký (kèm số lượng) để hiện trong bộ lọc
+  const eventLeadCounts = leads.reduce<Record<number, number>>((acc, l) => {
+    if (l.eventId != null) acc[l.eventId] = (acc[l.eventId] ?? 0) + 1;
+    return acc;
+  }, {});
+  const noEventCount = leads.filter((l) => l.eventId == null).length;
+
   // Filtered leads
   const filteredLeads = leads.filter((l) => {
     if (leadFilter !== "all" && (l.status || "new") !== leadFilter) return false;
+    if (leadEventFilter !== "all") {
+      if (leadEventFilter === "none") {
+        if (l.eventId != null) return false;
+      } else if (String(l.eventId ?? "") !== leadEventFilter) {
+        return false;
+      }
+    }
     if (leadSearch) {
       const q = leadSearch.toLowerCase();
       return l.name.toLowerCase().includes(q) || l.phone.includes(q);
@@ -331,9 +349,10 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
   }
 
   function exportCSV() {
-    const headers = ["Tên", "SĐT", "Độ tuổi", "Nguồn", "Campaign", "Trạng thái", "Thời gian"];
+    const headers = ["Tên", "SĐT", "Độ tuổi", "Sự kiện", "Nguồn", "Campaign", "Trạng thái", "Thời gian"];
     const rows = leads.map((l) => [
       l.name, l.phone, l.ageGroup || "",
+      l.eventId != null ? (eventTitleById.get(l.eventId) ?? `Sự kiện #${l.eventId}`) : "",
       l.utmSource || "", l.utmCampaign || "",
       STATUSES.find((s) => s.value === (l.status || "new"))?.label ?? l.status,
       new Date(l.createdAt).toLocaleString("vi-VN"),
@@ -1200,6 +1219,20 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
                 <option key={s.value} value={s.value}>{s.label} ({leads.filter((l) => (l.status || "new") === s.value).length})</option>
               ))}
             </select>
+            {(Object.keys(eventLeadCounts).length > 0) && (
+              <select
+                value={leadEventFilter}
+                onChange={(e) => setLeadEventFilter(e.target.value)}
+                title="Lọc khách theo sự kiện đã chạy quảng cáo"
+                style={{ padding: "0.5rem 0.75rem", border: "1px solid #ddd", borderRadius: 9, fontSize: "0.9rem", fontFamily: "inherit", background: "#fbfaf7" }}
+              >
+                <option value="all">🎉 Mọi nguồn ({leads.length})</option>
+                {Object.entries(eventLeadCounts).map(([id, count]) => (
+                  <option key={id} value={id}>{eventTitleById.get(Number(id)) ?? `Sự kiện #${id}`} ({count})</option>
+                ))}
+                {noEventCount > 0 && <option value="none">Đăng ký thường ({noEventCount})</option>}
+              </select>
+            )}
           </div>
         )}
         {leads.length === 0 ? (
@@ -1216,7 +1249,14 @@ function AdminEditorInner({ initial }: { initial: SiteContent }) {
                 <span>{l.name}</span>
                 <span>{l.phone}</span>
                 <span>{l.ageGroup || "—"}</span>
-                <span>{l.utmSource ? l.utmSource + (l.utmCampaign ? " · " + l.utmCampaign : "") : "—"}</span>
+                <span>
+                  {l.eventId != null && (
+                    <span style={{ display: "inline-block", background: "#eef4de", color: "#5f8f2e", fontWeight: 700, fontSize: "0.75rem", padding: "1px 7px", borderRadius: 999, marginRight: 4 }}>
+                      🎉 {eventTitleById.get(l.eventId) ?? `Sự kiện #${l.eventId}`}
+                    </span>
+                  )}
+                  {l.utmSource ? l.utmSource + (l.utmCampaign ? " · " + l.utmCampaign : "") : (l.eventId == null ? "—" : "")}
+                </span>
                 <span>
                   <select value={l.status || "new"} onChange={(e) => updateStatus(l.id, e.target.value)}>
                     {STATUSES.map((s) => (
