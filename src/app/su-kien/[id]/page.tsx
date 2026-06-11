@@ -144,6 +144,7 @@ export default async function EventDetailPage({ params }: Props) {
                   ctaText={ev.ctaText || "Đăng ký tham gia"}
                   initialAgeGroup={`Sự kiện: ${ev.title}`}
                   hideAgeSelect={true}
+                  eventId={ev.id}
                 />
               </div>
             )}

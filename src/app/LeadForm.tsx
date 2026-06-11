@@ -18,10 +18,12 @@ export default function LeadForm({
   ctaText,
   initialAgeGroup = "",
   hideAgeSelect = false,
+  eventId,
 }: {
   ctaText: string;
   initialAgeGroup?: string;
   hideAgeSelect?: boolean;
+  eventId?: number;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -60,7 +62,8 @@ export default function LeadForm({
     }
     setLoading(true);
     setError("");
-    const eventId =
+    // Mã khử trùng cho Facebook (Pixel + CAPI gửi cùng eventID để không đếm trùng)
+    const dedupId =
       typeof crypto !== "undefined" && crypto.randomUUID
         ? crypto.randomUUID()
         : `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -68,10 +71,10 @@ export default function LeadForm({
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, ageGroup, utm, eventId, company }),
+        body: JSON.stringify({ name, phone, ageGroup, utm, dedupId, eventId, company }),
       });
       if (!res.ok) throw new Error();
-      window.fbq?.("track", "Lead", { content_name: "Dang ky hoc thu" }, { eventID: eventId });
+      window.fbq?.("track", "Lead", { content_name: "Dang ky hoc thu" }, { eventID: dedupId });
       fireTikTokEvent("SubmitForm");
       // Chuyển sang trang cảm ơn riêng
       router.push("/cam-on");

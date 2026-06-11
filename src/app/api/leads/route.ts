@@ -28,7 +28,12 @@ function isValidVnPhone(raw: string) {
 // Phụ huynh điền form -> tạo lead mới (kèm nguồn quảng cáo)
 export async function POST(req: Request) {
   const body = await req.json();
-  const { name, phone, ageGroup, utm, eventId, company } = body;
+  const { name, phone, ageGroup, utm, dedupId, eventId, company } = body;
+  // Mã sự kiện marketing (nếu lead đến từ trang /su-kien/{id})
+  const evIdNum =
+    eventId != null && eventId !== "" && Number.isFinite(Number(eventId))
+      ? Math.trunc(Number(eventId))
+      : null;
 
   // Honeypot: chỉ bot mới điền trường ẩn "company" -> giả vờ thành công, bỏ qua
   if (company) {
@@ -51,22 +56,38 @@ export async function POST(req: Request) {
   }
 
   const u = utm || {};
-  await prisma.lead.create({
-    data: {
-      name: String(name),
-      phone: String(phone),
-      ageGroup: String(ageGroup ?? ""),
-      utmSource: String(u.utm_source ?? ""),
-      utmMedium: String(u.utm_medium ?? ""),
-      utmCampaign: String(u.utm_campaign ?? ""),
-      utmContent: String(u.utm_content ?? ""),
-      utmTerm: String(u.utm_term ?? ""),
-      fbclid: String(u.fbclid ?? ""),
-    },
-  });
+  const leadData: {
+    name: string; phone: string; ageGroup: string;
+    utmSource: string; utmMedium: string; utmCampaign: string;
+    utmContent: string; utmTerm: string; fbclid: string;
+    eventId?: number;
+  } = {
+    name: String(name),
+    phone: String(phone),
+    ageGroup: String(ageGroup ?? ""),
+    utmSource: String(u.utm_source ?? ""),
+    utmMedium: String(u.utm_medium ?? ""),
+    utmCampaign: String(u.utm_campaign ?? ""),
+    utmContent: String(u.utm_content ?? ""),
+    utmTerm: String(u.utm_term ?? ""),
+    fbclid: String(u.fbclid ?? ""),
+  };
+  if (evIdNum != null) leadData.eventId = evIdNum;
+  try {
+    await prisma.lead.create({ data: leadData });
+  } catch (err) {
+    // Phòng trường hợp DB chưa kịp có cột eventId — vẫn lưu lead để không mất khách
+    if (evIdNum != null && /eventId|P2022|column|Unknown arg/i.test(String(err))) {
+      const retry = { ...leadData };
+      delete retry.eventId;
+      await prisma.lead.create({ data: retry });
+    } else {
+      throw err;
+    }
+  }
 
   await sendLeadToCapi({
-    eventId: eventId ? String(eventId) : undefined,
+    eventId: dedupId ? String(dedupId) : undefined,
     phone: String(phone),
     name: String(name),
     fbclid: u.fbclid,

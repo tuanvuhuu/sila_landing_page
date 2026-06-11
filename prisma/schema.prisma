@@ -17,6 +17,8 @@ model Lead {
   name        String
   phone       String
   ageGroup    String   @default("")
+  // Mã sự kiện nếu lead đến từ trang /su-kien/{id} (null = đăng ký thường)
+  eventId     Int?
   // Trạng thái chăm sóc: new | contacted | trial | enrolled | lost
   status      String   @default("new")
   // Nguồn quảng cáo (lấy từ link Facebook ads)
