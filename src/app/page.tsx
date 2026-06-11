@@ -193,7 +193,7 @@ export default async function Home() {
           </span>
           <div className="nav-right">
             <ContactLink href={tel} method="phone" className="nav-phone">📞 {c.contact.phone}</ContactLink>
-            <a href="#signup" className="btn btn-primary">{c.hero.ctaText}</a>
+            <a href="#offer" className="btn btn-primary">🎁 Ưu đãi</a>
           </div>
         </div>
       </header>
@@ -208,8 +208,8 @@ export default async function Home() {
             <h1 className="hero-title-gradient">{c.hero.title}</h1>
             <p className="lead">{c.hero.subtitle}</p>
             <div className="hero-cta">
-              <a href="#signup" className="btn btn-primary">🎁 {c.hero.ctaText}</a>
-              <a href="#programs" className="btn btn-ghost">Xem chương trình</a>
+              <a href="#programs" className="btn btn-primary">Xem chương trình</a>
+              <a href="#offer" className="btn btn-ghost">🎁 Xem ưu đãi</a>
             </div>
             <ul className="hero-trust">
               <li><CheckMini /> Giáo viên bản ngữ &amp; TESOL/CELTA</li>
@@ -400,7 +400,7 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="offer">
+      <section className="offer" id="offer">
         <div className="wrap">
           <div className="offer-card reveal">
             <span className="badge-free">🎁 ƯU ĐÃI</span>
@@ -410,6 +410,7 @@ export default async function Home() {
               <div className="offer-deadline-label">⏳ Ưu đãi kết thúc sau:</div>
               <CountdownTimer />
             </div>
+            <a href="#signup" className="btn btn-primary" style={{ marginTop: "1.4rem" }}>🎁 {c.hero.ctaText} →</a>
           </div>
         </div>
       </section>

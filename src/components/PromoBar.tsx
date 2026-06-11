@@ -28,7 +28,7 @@ export default function PromoBar({ text = "Ưu đãi học thử tháng này" }:
   };
 
   return (
-    <a href="#signup" className="promo-bar" aria-label="Đăng ký học thử ngay">
+    <a href="#offer" className="promo-bar" aria-label="Xem ưu đãi học thử">
       <span className="wrap promo-bar-in">
         <span className="promo-bar-text">
           🎁 {text} — còn <strong suppressHydrationWarning>{fmt()}</strong>
