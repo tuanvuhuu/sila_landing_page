@@ -1,19 +1,30 @@
 :root {
-  --green: #80b848;
-  --green-deep: #5f8f2e;
-  --green-lime: #a6c940;
-  --green-soft: #eef4de;
-  --orange: #f58220;
-  --orange-deep: #e2710e;
-  --orange-light: #f9a94d;
-  --orange-soft: #fcead6;
-  --ink: #39402c;
-  --muted: #6e7460;
+  /* SILA Color Scheme */
+  --primary-blue: #003D6B;
+  --primary-blue-light: #1976D2;
+  --primary-blue-lighter: #E3F2FD;
+  --gold: #FFB81C;
+  --gold-deep: #E2A812;
+  --gold-light: #FFD54F;
+  --gold-soft: #FFF3E0;
+
+  /* Aliases for existing variables (backward compatibility) */
+  --green: #003D6B;        /* Changed from #80b848 */
+  --green-deep: #1976D2;   /* Changed from #5f8f2e */
+  --green-lime: #4CAF50;   /* Added green accent */
+  --green-soft: #E3F2FD;   /* Changed from #eef4de */
+  --orange: #FFB81C;       /* Changed from #f58220 */
+  --orange-deep: #E2A812;  /* Changed from #e2710e */
+  --orange-light: #FFD54F; /* Changed from #f9a94d */
+  --orange-soft: #FFF3E0;  /* Changed from #fcead6 */
+
+  --ink: #1A1A1A;
+  --muted: #666666;
   --bg: #ffffff;
-  --surface: #f8faf1;
-  --line: #e7ecd8;
-  --shadow: 0 20px 45px -24px rgba(57, 64, 44, 0.4);
-  --shadow-sm: 0 10px 26px -16px rgba(57, 64, 44, 0.4);
+  --surface: #F5F5F5;
+  --line: #E0E0E0;
+  --shadow: 0 20px 45px -24px rgba(0, 61, 107, 0.4);
+  --shadow-sm: 0 10px 26px -16px rgba(0, 61, 107, 0.4);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }

@@ -20,9 +20,9 @@ const nunito = Nunito({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const siteName = "ESL Academy";
-const title = "ESL Academy — English as a Second Language";
-const description = "Trung tâm tiếng Anh cho bé 3–15 tuổi. Đăng ký học thử miễn phí.";
+const siteName = "SILA English Center";
+const title = "SILA — English Center for Kids and Teens";
+const description = "Trung tâm tiếng Anh hàng đầu cho trẻ em và thanh thiếu niên. Đăng ký học thử miễn phí.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#80b848",
+  themeColor: "#003D6B",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
