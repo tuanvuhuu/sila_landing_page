@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { getContent } from "@/lib/content";
+import { currentSite } from "@/lib/site";
 import { prisma } from "@/lib/db";
 import LeadForm from "./LeadForm";
 import { ContactLink, ContactButtons } from "./Contact";
@@ -142,13 +143,14 @@ export default async function Home() {
 
   // Sự kiện: sắp tới (tất cả đang bật) + đã diễn ra (lịch sử, tối đa 6)
   const now = new Date();
+  const site = currentSite();
   const [upcomingEvents, pastEvents] = await Promise.all([
     prisma.event.findMany({
-      where: { status: "published", date: { gte: now } },
+      where: { site, status: "published", date: { gte: now } },
       orderBy: { date: "asc" },
     }),
     prisma.event.findMany({
-      where: { status: "published", date: { lt: now } },
+      where: { site, status: "published", date: { lt: now } },
       orderBy: { date: "desc" },
       take: 6,
     }),

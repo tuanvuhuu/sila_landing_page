@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { isAuthedFromReq } from "@/lib/auth";
 import { sendLeadToCapi, sendEnrolledToCapi } from "@/lib/fbcapi";
 import { sendLeadEmail } from "@/lib/email";
+import { currentSite } from "@/lib/site";
 
 export const runtime = "nodejs";
 
@@ -57,11 +58,13 @@ export async function POST(req: Request) {
 
   const u = utm || {};
   const leadData: {
+    site: string;
     name: string; phone: string; ageGroup: string;
     utmSource: string; utmMedium: string; utmCampaign: string;
     utmContent: string; utmTerm: string; fbclid: string;
     eventId?: number;
   } = {
+    site: currentSite(),
     name: String(name),
     phone: String(phone),
     ageGroup: String(ageGroup ?? ""),

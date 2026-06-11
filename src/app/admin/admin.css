@@ -450,3 +450,23 @@
   .dash-grid { grid-template-columns: repeat(2, 1fr); }
   .dash-row { grid-template-columns: 1fr; }
 }
+
+/* ===== Thanh chọn site (multi-site) ===== */
+.site-bar {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  background: #eef4de; border: 1px solid #d7e3bd; border-radius: 12px;
+  padding: 0.6rem 0.9rem; margin-bottom: 1rem;
+}
+.site-bar-label { font-weight: 800; color: #5f8f2e; font-size: 0.9rem; white-space: nowrap; }
+.site-bar-select {
+  padding: 0.45rem 0.7rem; border: 1px solid #bcd28f; border-radius: 9px;
+  font-family: inherit; font-weight: 700; font-size: 0.9rem; background: #fff; color: #39402c; cursor: pointer;
+}
+.site-bar-add { display: inline-flex; align-items: center; gap: 0.4rem; }
+.site-bar-add input {
+  padding: 0.45rem 0.7rem; border: 1px solid #bcd28f; border-radius: 9px;
+  font-family: inherit; font-size: 0.88rem; background: #fff; width: 130px;
+}
+.site-bar-hint { font-size: 0.8rem; margin-left: auto; }
+.admin.dark .site-bar { background: #2a2f22; border-color: #3c452c; }
+.admin.dark .site-bar-select, .admin.dark .site-bar-add input { background: #1f2418; color: #e8ead9; border-color: #3c452c; }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getContent } from "@/lib/content";
+import { currentSite } from "@/lib/site";
 import EventTabs from "./EventTabs";
 import { ContactLink, ContactButtons } from "../Contact";
 
@@ -16,13 +17,14 @@ export async function generateMetadata() {
 export default async function EventsPage() {
   const now = new Date();
 
+  const site = currentSite();
   const [upcoming, past, c] = await Promise.all([
     prisma.event.findMany({
-      where: { status: "published", date: { gte: now } },
+      where: { site, status: "published", date: { gte: now } },
       orderBy: { date: "asc" },
     }),
     prisma.event.findMany({
-      where: { status: "published", date: { lt: now } },
+      where: { site, status: "published", date: { lt: now } },
       orderBy: { date: "desc" },
     }),
     getContent(),
