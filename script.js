@@ -1,4 +1,91 @@
-// Mobile Menu Toggle
+// ===== Configuration Loader =====
+// Cập nhật DOM dựa trên CONFIG
+function applyConfig() {
+    if (typeof CONFIG === 'undefined') {
+        console.warn('CONFIG not loaded');
+        return;
+    }
+
+    // Áp dụng các biến màu sắc
+    const style = document.documentElement.style;
+    Object.entries(CONFIG.colors).forEach(([key, value]) => {
+        const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+        style.setProperty(cssVar, value);
+    });
+
+    // Cập nhật tiêu đề và thông tin công ty
+    document.title = CONFIG.seo.title;
+
+    // Cập nhật các phần tử với class data-config
+    updateElementsFromConfig();
+
+    // Cấu hình analytics nếu bật
+    if (CONFIG.features.enableAnalytics && CONFIG.analytics.googleAnalyticsId) {
+        loadGoogleAnalytics(CONFIG.analytics.googleAnalyticsId);
+    }
+
+    // Cấu hình maintenance mode
+    if (CONFIG.features.maintenanceMode) {
+        showMaintenanceMessage();
+    }
+}
+
+// Cập nhật các phần tử dựa trên CONFIG
+function updateElementsFromConfig() {
+    // Cập nhật contact info
+    const contactInfo = document.querySelectorAll('[data-config]');
+    contactInfo.forEach(el => {
+        const key = el.getAttribute('data-config');
+        const value = getConfigValue(key);
+        if (value) el.textContent = value;
+    });
+}
+
+// Lấy giá trị từ CONFIG dùng dot notation (ví dụ: 'contact.phone')
+function getConfigValue(path) {
+    return path.split('.').reduce((obj, key) => obj?.[key], CONFIG);
+}
+
+// Load Google Analytics
+function loadGoogleAnalytics(id) {
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+    document.head.appendChild(script1);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { window.dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', id);
+}
+
+// Hiển thị thông báo maintenance mode
+function showMaintenanceMessage() {
+    const message = document.createElement('div');
+    message.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #ff9800;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        z-index: 9999;
+        font-weight: bold;
+    `;
+    message.textContent = '⚠️ Trang web đang bảo trì. Vui lòng quay lại sau.';
+    document.body.prepend(message);
+}
+
+// Chạy cấu hình khi trang load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyConfig);
+} else {
+    applyConfig();
+}
+
+// ===== Mobile Menu Toggle =====
 const hamburger = document.querySelector('.hamburger');
 const navLinks = document.querySelector('.nav-links');
 
@@ -51,26 +138,54 @@ if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // Get form data
         const formData = new FormData(contactForm);
-
-        // Simulate form submission (in production, you'd send this to a server)
-        console.log('Form submitted:', Object.fromEntries(formData));
-
-        // Show success message
         const submitBtn = contactForm.querySelector('.submit-btn');
         const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Cảm ơn! Chúng tôi sẽ liên hệ sớm.';
-        submitBtn.style.backgroundColor = '#4CAF50';
 
-        // Reset form
-        contactForm.reset();
+        // Kiểm tra cấu hình form submission
+        if (CONFIG && CONFIG.features.enableFormSubmission && CONFIG.api.contactFormUrl) {
+            // Gửi đến API backend
+            submitBtn.textContent = 'Đang gửi...';
+            submitBtn.disabled = true;
 
-        // Reset button after 3 seconds
-        setTimeout(() => {
-            submitBtn.textContent = originalText;
-            submitBtn.style.backgroundColor = '';
-        }, 3000);
+            fetch(CONFIG.api.contactFormUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(formData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Form submitted successfully:', data);
+                submitBtn.textContent = 'Cảm ơn! Chúng tôi sẽ liên hệ sớm.';
+                submitBtn.style.backgroundColor = '#4CAF50';
+                contactForm.reset();
+                setTimeout(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.backgroundColor = '';
+                    submitBtn.disabled = false;
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Form submission error:', error);
+                submitBtn.textContent = 'Lỗi! Vui lòng thử lại.';
+                submitBtn.style.backgroundColor = '#f44336';
+                setTimeout(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.backgroundColor = '';
+                    submitBtn.disabled = false;
+                }, 3000);
+            });
+        } else {
+            // Chế độ demo - chỉ hiển thị thông báo
+            console.log('Form submitted (demo mode):', Object.fromEntries(formData));
+            submitBtn.textContent = 'Cảm ơn! Chúng tôi sẽ liên hệ sớm.';
+            submitBtn.style.backgroundColor = '#4CAF50';
+            contactForm.reset();
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.style.backgroundColor = '';
+            }, 3000);
+        }
     });
 }
 
